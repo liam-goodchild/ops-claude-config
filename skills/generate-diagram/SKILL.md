@@ -1,5 +1,5 @@
 ---
-name: architecture-diagram
+name: generate-diagram
 description: Generate Mermaid architecture diagrams from IaC files and code structure in this repository
 ---
 

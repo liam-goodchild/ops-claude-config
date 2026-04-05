@@ -1,5 +1,5 @@
 ---
-name: pull-request-gh
+name: create-pr-gh
 description: Create a GitHub pull request for the current branch
 disable-model-invocation: true
 ---

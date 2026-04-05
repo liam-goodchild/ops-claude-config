@@ -1,5 +1,5 @@
 ---
-name: pr-review
+name: review-pull-request
 description: Review an open pull request for code quality, security, and IaC best practices
 ---
 

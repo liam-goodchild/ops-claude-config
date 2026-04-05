@@ -1,5 +1,5 @@
 ---
-name: security-engineer
+name: review-security
 description: Review code from a security engineer's perspective and implement security tests in CI pipelines
 ---
 

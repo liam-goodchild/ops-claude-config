@@ -1,5 +1,5 @@
 ---
-name: cost-estimate
+name: generate-cost-estimate
 description: Generate an Azure cost estimate for deployed infrastructure including serverless components
 ---
 

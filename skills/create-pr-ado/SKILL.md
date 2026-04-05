@@ -1,5 +1,5 @@
 ---
-name: pull-request-ado
+name: create-pr-ado
 description: Create an Azure DevOps pull request for the current branch
 disable-model-invocation: true
 ---

@@ -1,5 +1,5 @@
 ---
-name: repo-config-gh
+name: config-repo-gh
 description: Configure a GitHub repository — default branch, security settings, branch ruleset, rename, and README generation
 ---
 

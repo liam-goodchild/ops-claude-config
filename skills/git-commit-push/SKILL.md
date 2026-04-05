@@ -1,5 +1,5 @@
 ---
-name: commit-and-push
+name: git-commit-push
 description: Stage, commit, and push changes to origin
 disable-model-invocation: true
 ---

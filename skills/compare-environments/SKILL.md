@@ -1,5 +1,5 @@
 ---
-name: environment-diff
+name: compare-environments
 description: Compare IaC parameters and config across environments (dev, uat, prod) and flag discrepancies
 ---
 

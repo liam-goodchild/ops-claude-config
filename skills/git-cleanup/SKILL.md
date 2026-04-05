@@ -1,5 +1,5 @@
 ---
-name: branch-cleanup
+name: git-cleanup
 description: Checkout default branch, delete merged local branches, prune remotes, and pull latest
 disable-model-invocation: true
 ---

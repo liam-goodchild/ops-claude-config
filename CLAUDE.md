@@ -28,22 +28,54 @@ The body is the prompt given to Claude when the skill is invoked via `/<name>`. 
 
 ### Available Skills
 
+Naming schema: `{verb}-{subject}[-{qualifier}]`
+
+**Review**
+
 | Skill | Purpose |
 |-------|---------|
-| `architecture-diagram` | Mermaid diagrams from IaC/code |
-| `branch-cleanup` | Delete merged branches, prune remotes |
-| `caf-waf-alignment` | CAF/WAF gap report for Azure infrastructure |
-| `commit-and-push` | Stage, commit, and push with safety checks |
-| `cost-estimate` | Azure cost estimate from IaC |
-| `devops-engineer` | IaC and CI/CD pipeline review |
-| `environment-diff` | Compare IaC params across dev/uat/prod |
-| `learn` | Quiz the user on recent changes |
-| `pr-review` | Pull request review (GitHub and ADO) |
-| `pull-request-ado` | Create an ADO pull request |
-| `pull-request-gh` | Create a GitHub pull request |
-| `repo-config-ado` | Standard ADO repo configuration |
-| `repo-config-gh` | Standard GitHub repo configuration |
-| `security-engineer` | Security review and CI test implementation |
+| `review-terraform` | Terraform code and CI/CD pipeline (minimalist lens) |
+| `review-gha-pipelines` | GitHub Actions workflow quality, security, reliability |
+| `review-ado-pipelines` | Azure DevOps YAML pipeline quality, security, reliability |
+| `review-pull-request` | Pull request review (GitHub and ADO) |
+| `review-security` | App security review (OWASP, Azure) and CI security gates |
+| `review-waf` | Azure Well-Architected Framework pillar assessment (RAG) |
+| `review-caf` | Cloud Adoption Framework landing zone alignment |
+
+**Compare / Generate**
+
+| Skill | Purpose |
+|-------|---------|
+| `compare-environments` | Diff IaC params across dev/uat/prod |
+| `generate-diagram` | Mermaid architecture diagrams from IaC/code |
+| `generate-cost-estimate` | Azure cost estimate from IaC |
+
+**Create**
+
+| Skill | Purpose |
+|-------|---------|
+| `create-pr-ado` | Create an Azure DevOps pull request |
+| `create-pr-gh` | Create a GitHub pull request |
+
+**Config**
+
+| Skill | Purpose |
+|-------|---------|
+| `config-repo-ado` | Standard ADO repo configuration |
+| `config-repo-gh` | Standard GitHub repo configuration |
+
+**Git**
+
+| Skill | Purpose |
+|-------|---------|
+| `git-cleanup` | Delete merged branches, prune remotes |
+| `git-commit-push` | Stage, commit, and push with safety checks |
+
+**Other**
+
+| Skill | Purpose |
+|-------|---------|
+| `learn` | Quiz on recent code changes to reinforce understanding |
 
 ## Common Tasks
 

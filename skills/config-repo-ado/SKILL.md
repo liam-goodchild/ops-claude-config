@@ -1,5 +1,5 @@
 ---
-name: repo-config-ado
+name: config-repo-ado
 description: Configure an Azure DevOps repository — default branch, branch policies, Advanced Security, rename, and README generation
 ---
 

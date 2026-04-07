@@ -21,5 +21,6 @@
       "mcp__ide__getDiagnostics"
     ],
     "deny": []
-  }
+  },
+  "model": "opus"
 }

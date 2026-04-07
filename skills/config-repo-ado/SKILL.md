@@ -96,12 +96,9 @@ az rest --method POST \
 
 Ask the user: "What will this repository contain?" if not already clear from context.
 
-Read the local naming convention reference:
-`C:/Users/GoodchildL/.claude/skills/repo-config-ado/repo-naming.md`
-
-If that file does not exist, fetch it instead:
+Fetch the naming convention:
 ```bash
-gh api repos/liam-goodchild/docs-engineering-standards/contents/repo-standards/repo-naming/README.md \
+gh api repos/liam-goodchild/docs-engineering-standards/contents/standards/repo-naming.md \
   --jq '.content' | base64 -d
 ```
 
@@ -119,12 +116,9 @@ az repos update \
 
 ## Step 5 — Generate README
 
-Read the local README template:
-`C:/Users/GoodchildL/.claude/skills/repo-config-ado/readme-template.md`
-
-If that file does not exist, fetch it instead:
+Fetch the readme template:
 ```bash
-gh api repos/liam-goodchild/docs-engineering-standards/contents/readme-standards/README.md \
+gh api repos/liam-goodchild/docs-engineering-standards/contents/standards/readme-format.md \
   --jq '.content' | base64 -d
 ```
 

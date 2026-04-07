@@ -1,5 +1,5 @@
 ---
-name: terraform
+name: review-terraform
 description: Review Terraform code and its CI/CD pipeline with a minimalist lens — every line is a liability
 ---
 

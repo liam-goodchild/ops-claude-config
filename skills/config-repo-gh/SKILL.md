@@ -1,11 +1,80 @@
 ---
 name: config-repo-gh
-description: Configure a GitHub repository — default branch, security settings, branch ruleset, rename, and README generation
+description: Configure a GitHub repository — default branch, security settings, branch ruleset, rename, and README generation. Can create the repo from scratch.
 ---
 
 You are configuring a GitHub repository. Use the `gh` CLI for all operations. Work through each step in order and confirm the result before moving on.
 
-Resolve `{owner}` and `{repo}` from `git remote get-url origin` before starting.
+---
+
+## Step 0 — Prerequisites & Repository Initialisation
+
+### 0a — Verify authentication
+
+```bash
+gh auth status
+```
+
+If the user is not authenticated, tell them to run `! gh auth login` and stop until they confirm success.
+
+### 0b — Determine repository state
+
+Check whether a git repo and remote already exist:
+
+```bash
+git remote get-url origin 2>/dev/null
+```
+
+**If a remote exists:** resolve `{owner}` and `{repo}` from the URL and skip to Step 1.
+
+**If no remote exists:** continue with 0c–0f to create one.
+
+### 0c — Initialise local repository (if needed)
+
+If the current directory is not a git repository:
+
+```bash
+git init
+```
+
+### 0d — Ensure the branch is called `main`
+
+The default branch after `git init` is often `master`. Rename it:
+
+```bash
+git branch -m main
+```
+
+(Safe to run even if already on `main`.)
+
+### 0e — Create the remote repository
+
+Ask the user whether the repo should be **public** or **private** (default: private). Then ask what org/owner to create it under, or default to the authenticated user.
+
+```bash
+gh repo create {owner}/{repo} --private --source=. --remote=origin
+```
+
+(Replace `--private` with `--public` if requested.)
+
+Resolve `{owner}` and `{repo}` from `git remote get-url origin` after creation.
+
+### 0f — Push an empty `main` branch
+
+```bash
+git commit --allow-empty -m "chore: initialise repository"
+git push -u origin main
+```
+
+### 0g — Create a working branch
+
+All file changes (including README generation, etc.) must be made on a new branch:
+
+```bash
+git checkout -b major/initial-design
+```
+
+> **Important:** From this point on, any file writes or commits happen on `major/initial-design`, not `main`.
 
 ---
 
@@ -119,6 +188,7 @@ Parse the repository code to understand its purpose, tech stack, and structure. 
 
 | Step | Status | Notes |
 |------|--------|-------|
+| Auth & repo init | | |
 | Default branch | | |
 | Security features | | |
 | Branch ruleset | | |

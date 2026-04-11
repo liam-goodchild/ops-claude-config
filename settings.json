@@ -22,5 +22,6 @@
     ],
     "deny": []
   },
-  "model": "opus"
+  "model": "opus",
+  "effortLevel": "medium"
 }

@@ -35,7 +35,7 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 | Skill | Purpose |
 |-------|---------|
 | `review-terraform` | Terraform code and CI/CD pipeline (minimalist lens) |
-| `review-naming` | Azure resource naming schema enforcement |
+| `review-azure-naming` | Azure resource naming schema enforcement |
 | `review-gha-pipelines` | GitHub Actions workflow quality, security, reliability |
 | `review-ado-pipelines` | Azure DevOps YAML pipeline quality, security, reliability |
 | `review-pull-request` | Pull request review (GitHub and ADO) |

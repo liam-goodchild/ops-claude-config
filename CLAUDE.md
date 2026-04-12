@@ -48,6 +48,8 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 | Skill | Purpose |
 |-------|---------|
 | `format-terraform` | Terraform file structure, layout, and formatting standards |
+| `format-ado-pipelines` | Azure DevOps pipeline file structure, layout, and formatting standards |
+| `format-gha-pipelines` | GitHub Actions workflow file structure, layout, and formatting standards |
 
 **Compare / Generate**
 

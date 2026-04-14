@@ -60,7 +60,7 @@ Every abstraction, variable, and module must earn its place.
 ### 6. Resource Design
 
 - Do resources follow a consistent naming convention, ideally driven by a local or variable?
-- Are required tags (environment, owner, cost centre) applied consistently — ideally via a `default_tags` provider block rather than per-resource?
+- Are required tags (environment, owner, cost centre) applied consistently — e.g. via a shared `local.tags` map applied to all resources?
 - Are `lifecycle` rules (`ignore_changes`, `create_before_destroy`) present only where genuinely needed? Each one hides behaviour.
 - Are data sources used to look up existing resources correctly, or are IDs hard-coded?
 

@@ -33,13 +33,20 @@ Each Terraform block type must be in its own dedicated file with an underscore p
 
 ### 3. Resource Files
 
-Each resource being deployed must be in its own `.tf` file under `infra/`, named after the resource. Convert the Terraform resource type by dropping the provider prefix and replacing underscores with hyphens:
+Resources must be grouped by **functional purpose** into named `.tf` files under `infra/`. All resources that belong to the same concern live in the same file. File names are lowercase, hyphen-separated, and reflect the purpose — not the resource type.
 
-- `azurerm_resource_group` → `infra/resource-group.tf`
-- `azurerm_key_vault` → `infra/key-vault.tf`
-- `azurerm_storage_account` → `infra/storage-account.tf`
+Examples:
+- `infra/networking.tf` — VNet, subnets, NSGs, route tables, associations, network watcher, networking resource group
+- `infra/dns.tf` — DNS zones, nameserver records, DNS resource group
+- `infra/management-groups.tf` — management groups and subscription associations
+- `infra/key-vault.tf` — Key Vault and any diagnostic settings scoped to it
+- `infra/storage.tf` — storage accounts (all purposes unless clearly distinct, e.g. `storage-logs.tf`)
 
-If multiple instances of the same resource type exist (e.g. two storage accounts), group them in one file or use a clear suffix (e.g. `storage-account-logs.tf`).
+Rules:
+- Do not create one file per resource type — that is over-splitting.
+- Do not dump unrelated resources into a single catch-all file — that is under-splitting.
+- When in doubt, ask: "would a reader expect to find these resources together?" If yes, same file.
+- Resources that serve as foundations for a group (e.g. a resource group) belong in the same file as the resources they contain.
 
 ### 4. Block Spacing
 

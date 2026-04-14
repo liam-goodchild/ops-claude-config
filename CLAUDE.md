@@ -35,7 +35,6 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 | Skill | Purpose |
 |-------|---------|
 | `review-terraform` | Terraform code and CI/CD pipeline (minimalist lens) |
-| `review-azure-naming` | Azure resource naming schema enforcement |
 | `review-gha-pipelines` | GitHub Actions workflow quality, security, reliability |
 | `review-ado-pipelines` | Azure DevOps YAML pipeline quality, security, reliability |
 | `review-pull-request` | Pull request review (GitHub and ADO) |
@@ -47,7 +46,7 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 | Skill | Purpose |
 |-------|---------|
-| `format-terraform` | Terraform file structure, layout, and formatting standards |
+| `format-terraform` | Terraform file structure, naming, tagging, pinning, and formatting standards |
 | `format-ado-pipelines` | Azure DevOps pipeline file structure, layout, and formatting standards |
 | `format-gha-pipelines` | GitHub Actions workflow file structure, layout, and formatting standards |
 

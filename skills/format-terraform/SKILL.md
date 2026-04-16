@@ -45,10 +45,10 @@ Examples:
 - `infra/storage.tf` — storage accounts (all purposes unless clearly distinct, e.g. `storage-logs.tf`)
 
 Rules:
-- Do not create one file per resource type — that is over-splitting.
+- **Resource groups** must live in their own file: `infra/resource-groups.tf`. Do not co-locate resource groups with the resources they contain.
+- Do not create one file per resource type — that is over-splitting. (Resource groups are the sole exception.)
 - Do not dump unrelated resources into a single catch-all file — that is under-splitting.
 - When in doubt, ask: "would a reader expect to find these resources together?" If yes, same file.
-- Resources that serve as foundations for a group (e.g. a resource group) belong in the same file as the resources they contain.
 
 ### 4. Block Spacing
 
@@ -68,8 +68,10 @@ variable "environment" {
 
 ### 5. Dead Code
 
-- Every declared `variable` must be referenced somewhere in the configuration. Remove unused variables.
-- Every declared `output` must be consumed by a caller or be intentionally exposed at the root module level. Remove unused outputs.
+- Every declared `variable` must be referenced (`var.<name>`) somewhere in the `.tf` configuration. Grep for each variable before marking it as used. Remove unused variables.
+- Every declared `output` must be consumed by something external — a pipeline, script, parent module, or other caller. Search the entire repository (YAML, shell, JSON, HCL) for references before marking an output as used. An output that exists only in `_outputs.tf` with no external consumer is dead code. Remove unused outputs.
+- Every `data` source must be referenced (`data.<type>.<name>`) somewhere in the configuration. Grep for each data source before marking it as used. Remove unused data sources.
+- Every `locals` entry must be referenced (`local.<name>`) somewhere in the configuration. Grep for each local before marking it as used. Remove unused locals. **Exception:** `resource_suffix_flat` is exempt — it is scaffolding required by Rule 7 and may not have a consumer yet.
 - No commented-out blocks or resources.
 
 ### 6. Version Pinning

@@ -4,7 +4,7 @@ description: Checkout default branch, delete merged local branches, prune remote
 disable-model-invocation: true
 ---
 
-Run these commands in sequence:
+Run in sequence:
 
 ```
 DEFAULT=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@') || DEFAULT="main"
@@ -14,4 +14,4 @@ git branch --merged | grep -Ev '^\*|^\s+(main|master)$' | xargs -r git branch -d
 git pull
 ```
 
-List deleted branches. Then list any unmerged feature branches (`git branch --no-merged`) and ask the user before force-deleting any of those.
+List deleted branches. List any unmerged feature branches (`git branch --no-merged`) and ask before force-deleting.

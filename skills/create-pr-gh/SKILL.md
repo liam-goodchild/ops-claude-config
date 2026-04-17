@@ -4,22 +4,21 @@ description: Create a GitHub pull request for the current branch
 disable-model-invocation: true
 ---
 
-1. Run `git branch --show-current` and resolve the default branch with `gh api repos/{owner}/{repo} --jq .default_branch`. If on the default branch, STOP.
+1. `git branch --show-current` + `gh api repos/{owner}/{repo} --jq .default_branch`. If on default branch, STOP.
 
-2. Check for an existing PR: `gh pr list --head $(git branch --show-current) --state open`. If one exists, output its URL and STOP.
+2. Check existing PR: `gh pr list --head $(git branch --show-current) --state open`. If exists → output URL, STOP.
 
-3. Ensure local commits are pushed: if `git log origin/{branch}..HEAD` shows unpushed commits, run `git push origin HEAD` first.
+3. Push if needed: if `git log origin/{branch}..HEAD` shows unpushed commits → `git push origin HEAD`.
 
-4. Determine the title prefix from the branch name:
-   - `feature/` → `[FEATURE]`  |  `hotfix/`, `patch/`, `fix/` → `[PATCH]`  |  `major/`, `breaking/` → `[MAJOR]`
-   - If unclear, ask the user.
+4. Title prefix from branch name: `feature/` → `[FEATURE]`, `hotfix/`|`patch/`|`fix/` → `[PATCH]`, `major/`|`breaking/` → `[MAJOR]`. If unclear, ask.
 
-5. Run `git diff {default}...HEAD` to summarise changes. Derive a brief title (under 60 chars after prefix).
+5. `git diff {default}...HEAD` → derive brief title (<60 chars after prefix).
 
-6. Create the PR with:
+6. Create PR:
+
 ```
 gh pr create --base {default} --title "<PREFIX> - <title>" --body "## Changes
-- <bullet list of changes derived from the diff>"
+- <bullet list from diff>"
 ```
 
-7. Output the PR URL.
+7. Output PR URL.

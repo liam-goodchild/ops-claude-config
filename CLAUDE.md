@@ -57,6 +57,7 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 | `compare-environments` | Diff IaC params across dev/uat/prod |
 | `generate-diagram` | Mermaid architecture diagrams from IaC/code |
 | `generate-cost-estimate` | Azure cost estimate from IaC |
+| `generate-readme` | Brief project README from code and standards template |
 
 **Create**
 

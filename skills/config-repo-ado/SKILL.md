@@ -98,15 +98,4 @@ az repos update --org "https://dev.azure.com/{org}" --project "{project}" --repo
 
 ## Step 5 — README
 
-Fetch template:
-
-```bash
-gh api repos/liam-goodchild/docs-engineering-standards/contents/standards/readme-format.md --jq '.content' | base64 -d
-```
-
-Parse repo code for purpose/stack. Generate `README.md` per template. Rules:
-- Concise: what it does, how to use, how to contribute. Nothing more.
-- No directory structures, tree output, or file listings.
-- No content that changes with development (module lists, resource counts, feature inventories).
-- No badges unless requested.
-- Only proceed once user confirms code is in working state.
+Run the `/generate-readme` skill. Only proceed once user confirms code is in working state.

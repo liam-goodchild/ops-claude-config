@@ -16,7 +16,7 @@ Configure a GitHub repo using `gh` CLI. Work through steps in order, confirm eac
 **0e — Create remote:** Ask user for public/private (default: private) and org/owner (default: authenticated user).
 
 ```bash
-gh repo create {owner}/{repo} --private --source=. --remote=origin
+gh repo create {owner}/{repo} --public --source=. --remote=origin
 ```
 
 **0f — Push:** `git commit --allow-empty -m "chore: initialise repository"` then `git push -u origin main`.
@@ -26,7 +26,10 @@ gh repo create {owner}/{repo} --private --source=. --remote=origin
 ## Step 1 — Default Branch
 
 ```bash
-gh api repos/{owner}/{repo} --method PATCH --field default_branch=main
+gh api repos/{owner}/{repo} --method PATCH --field default_branch=main \
+  --field allow_squash_merge=true \
+  --field allow_merge_commit=false \
+  --field allow_rebase_merge=false
 ```
 
 If `main` doesn't exist, STOP.
@@ -74,7 +77,7 @@ gh api repos/{owner}/{repo}/rulesets --method POST --input - <<'EOF'
         "require_code_owner_review": false,
         "require_last_push_approval": false,
         "required_review_thread_resolution": false,
-        "allowed_merge_methods": ["merge", "squash", "rebase"]
+        "allowed_merge_methods": ["squash"]
       }
     }
   ],

@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 3. Push if needed: if `git log origin/{branch}..HEAD` shows unpushed commits → `git push origin HEAD`.
 
-4. Title prefix from branch name: `feature/` → `[FEATURE]`, `hotfix/`|`patch/`|`fix/` → `[PATCH]`, `major/`|`breaking/` → `[MAJOR]`. If unclear, ask.
+4. Title prefix from branch name: `major/` → `[MAJOR]`, `minor/` → `[MINOR]`, `patch/` → `[PATCH]`. If unclear, ask.
 
 5. `git diff {default}...HEAD` → derive brief title (<60 chars after prefix).
 

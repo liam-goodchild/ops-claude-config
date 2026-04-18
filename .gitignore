@@ -5,6 +5,8 @@
 !.gitignore
 !skills/
 !skills/**
+!hooks/
+!hooks/**
 !settings.json
 !README.md
 !CLAUDE.md

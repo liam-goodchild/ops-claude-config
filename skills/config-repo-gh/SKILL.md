@@ -100,3 +100,37 @@ gh api repos/{owner}/{repo} --method PATCH --field name={confirmed-new-name}
 ## Step 5 — README
 
 Run the `/generate-readme` skill. Only proceed once user confirms code is in working state.
+
+## Step 6 — Link to Sky Haven Project Board
+
+Link repo to the Sky Haven Project Board using GraphQL. Requires `read:project` scope (`gh auth refresh -s read:project` if missing).
+
+Get project node ID (project number = 1, owner = liam-goodchild):
+
+```bash
+"/c/Program Files/GitHub CLI/gh.exe" api graphql -f query='
+  query {
+    user(login: "liam-goodchild") {
+      projectV2(number: 3) {
+        id
+        title
+      }
+    }
+  }
+'
+```
+
+Confirm title is "Sky Haven Project Board". Then get repo node ID and link it:
+
+```bash
+REPO_ID=$("/c/Program Files/GitHub CLI/gh.exe" api repos/{owner}/{repo} --jq '.node_id')
+PROJECT_ID="<id from above>"
+
+"/c/Program Files/GitHub CLI/gh.exe" api graphql -f query='
+  mutation($projectId: ID!, $repoId: ID!) {
+    linkProjectV2ToRepository(input: { projectId: $projectId, repositoryId: $repoId }) {
+      repository { nameWithOwner }
+    }
+  }
+' -f projectId="$PROJECT_ID" -f repoId="$REPO_ID"
+```

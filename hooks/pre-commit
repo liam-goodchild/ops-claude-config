@@ -20,6 +20,7 @@ if command -v prettier &>/dev/null; then
 		cfg=".github/linters/.prettierrc.json"
 		[ ! -f "$cfg" ] && cfg=""
 		while IFS= read -r f; do
+			[ -f "$f" ] || continue
 			prettier --write ${cfg:+--config "$cfg"} "$f" &>/dev/null || true
 			git add "$f"
 		done <<< "$staged_fmt"

@@ -40,8 +40,14 @@ If `main` doesn't exist, STOP.
 gh api repos/{owner}/{repo}/private-vulnerability-reporting --method PUT
 gh api repos/{owner}/{repo}/vulnerability-alerts --method PUT
 gh api repos/{owner}/{repo}/automated-security-fixes --method PUT
-gh api repos/{owner}/{repo} --method PATCH \
-  --field 'security_and_analysis={"secret_scanning":{"status":"enabled"},"secret_scanning_push_protection":{"status":"enabled"}}'
+gh api repos/{owner}/{repo} --method PATCH --input - <<'EOF'
+{
+  "security_and_analysis": {
+    "secret_scanning": {"status": "enabled"},
+    "secret_scanning_push_protection": {"status": "enabled"}
+  }
+}
+EOF
 ```
 
 Note any features unavailable on current plan and explain why.

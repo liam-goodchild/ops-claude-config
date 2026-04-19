@@ -6,11 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a portable Claude Code configuration repository. It is cloned to `~/.claude` on each device to provide consistent settings and custom skills across machines.
 
-Only two things are tracked in version control (enforced by `.gitignore`):
-- `settings.json` — global tool permissions
+Tracked in version control (enforced by `.gitignore`):
+- `settings.json` — global tool permissions and model config
 - `skills/` — custom slash command definitions
+- `hooks/` — shell scripts wired to Claude Code hook events
+- `docs/` — supporting documentation
+- `README.md`, `CLAUDE.md`
 
-Everything else in `~/.claude` (sessions, history, cache, credentials, memory, etc.) is excluded.
+Everything else in `~/.claude` (sessions, history, cache, credentials, memory, plugins, etc.) is excluded.
 
 ## Skills
 
@@ -115,3 +118,9 @@ The `gh` CLI is not on the bash `PATH` by default. Use the full path:
 ## settings.json
 
 Defines globally allowed tools. When adding new MCP tool permissions, add them to the `allow` array. The `deny` array is currently empty — prefer allowlist-only control.
+
+Plugins (marketplace and official) are configured under `enabledPlugins` — these are not synced via git and must be installed per-device.
+
+## hooks/
+
+Hook scripts fire on Claude Code events (e.g. pre-commit). They are tracked in version control and apply globally across all projects on the machine.

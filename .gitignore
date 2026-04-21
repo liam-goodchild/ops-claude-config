@@ -1,13 +1,32 @@
 # Exclude everything by default
 *
 
-# Track only skills and settings
-!.gitignore
+# Claude Code
+!settings.json
+!CLAUDE.md
 !skills/
 !skills/**
 !hooks/
 !hooks/**
-!settings.json
+
+# Codex CLI
+!codex/
+!codex/**
+
+# VS Code
+!vscode/
+!vscode/**
+
+# Git
+!git/
+!git/**
+
+# Scripts
+!scripts/
+!scripts/**
+
+# Repo meta
+!.gitignore
 !README.md
 !CLAUDE.md
 !docs/

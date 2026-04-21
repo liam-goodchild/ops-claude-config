@@ -1,0 +1,7 @@
+# Codex CLI configuration
+# Symlinked from ~/.codex/config.yaml
+# Full schema: https://github.com/openai/codex
+
+model: o4-mini
+approval: suggest
+notify: false

@@ -4,16 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is a portable Claude Code configuration repository. It is cloned to `~/.claude` on each device to provide consistent settings and custom skills across machines.
+This is a portable developer configuration repository. Junctions and symlinks
+connect each tool's expected config location into this repo, so a single
+`git pull` updates all tools on a machine simultaneously.
 
 Tracked in version control (enforced by `.gitignore`):
-- `settings.json` — global tool permissions and model config
-- `skills/` — custom slash command definitions
-- `hooks/` — shell scripts wired to Claude Code hook events
-- `docs/` — supporting documentation
-- `README.md`, `CLAUDE.md`
 
-Everything else in `~/.claude` (sessions, history, cache, credentials, memory, plugins, etc.) is excluded.
+| Path | Tool | Purpose |
+|------|------|---------|
+| `settings.json` | Claude Code | Global tool permissions and model config |
+| `CLAUDE.md` | Claude Code | Global Claude system instructions |
+| `skills/` | Claude Code | Custom slash command definitions |
+| `hooks/` | Claude Code | Shell scripts wired to Claude Code events |
+| `codex/instructions.md` | Codex CLI | System prompt / custom instructions |
+| `codex/config.yaml` | Codex CLI | Model, approval mode, options |
+| `vscode/settings.json` | VS Code | Editor and extension settings |
+| `vscode/keybindings.json` | VS Code | Custom keyboard shortcuts |
+| `git/config.shared` | Git | Shared aliases and core settings (via `[include]`) |
+| `git/gitignore_global` | Git | Global gitignore patterns |
+| `scripts/setup.ps1` | All | One-shot link creation for a new Windows machine |
+| `docs/` | — | Per-tool setup documentation |
+
+Everything else in each tool's config directory (sessions, history, cache,
+credentials, etc.) is excluded.
 
 ## Skills
 
@@ -95,17 +108,28 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push. The skill is immediately available on any device after a `git pull`.
 
-### Syncing to a new device
+### Setting up a new device
 
-```bash
-git clone https://github.com/liam-goodchild/ops-claude-config.git ~/.claude
+Clone the repo and run the setup script (Windows, Administrator shell):
+
+```powershell
+git clone https://github.com/liam-goodchild/ops-claude-config.git "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+cd "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+.\scripts\setup.ps1
 ```
+
+See `docs/machine-setup.md` for full prerequisites and the manual equivalent
+on Linux/macOS.
 
 ### Pulling updates on an existing device
 
-```bash
-cd ~/.claude && git pull
+```powershell
+cd "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+git pull
 ```
+
+Because all config locations point into the repo via junctions/symlinks, the
+pull is immediately live — no re-running the setup script needed.
 
 ### gh CLI path (Windows)
 

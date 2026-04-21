@@ -13,7 +13,7 @@ polluting git with session data.
 ~/.claude/
 ├── docs/          → Junction  → ops-claude-config/docs/
 ├── hooks/         → Junction  → ops-claude-config/hooks/
-├── skills/        → Junction  → ops-claude-config/skills/
+├── skills/        → Junction  → ops-claude-config/shared/skills/
 ├── CLAUDE.md      → Symlink   → ops-claude-config/CLAUDE.md
 ├── settings.json  → Symlink   → ops-claude-config/settings.json
 │
@@ -52,7 +52,7 @@ Only items inside `ops-claude-config/` are versioned:
 | --------------- | -------------- | ------------------------------------ |
 | `docs/`         | Directory      | Reference documentation (this file) |
 | `hooks/`        | Directory      | Claude Code event hooks              |
-| `skills/`       | Directory      | Custom slash-command skills          |
+| `shared/skills/` | Directory     | Shared slash-command skills (Claude + Codex) |
 | `CLAUDE.md`     | File           | Global Claude system instructions   |
 | `settings.json` | File           | Claude Code settings                 |
 | `.gitignore`    | File           | Excludes all runtime data from git   |
@@ -75,7 +75,7 @@ $claude = "$env:USERPROFILE\.claude"
 # Junctions for directories
 cmd /c mklink /J "$claude\docs"   "$repo\docs"
 cmd /c mklink /J "$claude\hooks"  "$repo\hooks"
-cmd /c mklink /J "$claude\skills" "$repo\skills"
+cmd /c mklink /J "$claude\skills" "$repo\shared\skills"
 
 # Symlinks for files
 cmd /c mklink "$claude\CLAUDE.md"     "$repo\CLAUDE.md"
@@ -90,6 +90,7 @@ cmd /c mklink "$claude\settings.json" "$repo\settings.json"
 | 2026-04-19 | Junction removed; real `~/.claude` created                             |
 | 2026-04-19 | Runtime dirs/files moved from repo → `~/.claude`                      |
 | 2026-04-19 | Junctions created for `docs/`, `hooks/`, `skills/`                    |
+| 2026-04-21 | `skills/` moved to `shared/skills/`; Codex skills junction added       |
 | 2026-04-19 | Symlinks created for `CLAUDE.md`, `settings.json`                     |
 | 2026-04-19 | Remaining runtime data merged from `~/.claude-backup` → `~/.claude`  |
 

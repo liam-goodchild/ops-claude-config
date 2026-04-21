@@ -1,11 +1,13 @@
 # Exclude everything by default
 *
 
+# Shared
+!shared/
+!shared/**
+
 # Claude Code
 !settings.json
 !CLAUDE.md
-!skills/
-!skills/**
 !hooks/
 !hooks/**
 

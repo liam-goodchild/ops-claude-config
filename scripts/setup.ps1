@@ -48,13 +48,18 @@ function New-Symlink {
     Write-Host "  [symlink] $Link -> $Target" -ForegroundColor Green
 }
 
+# ── Shared ─────────────────────────────────────────────────────────────────────
+
+Write-Host "`nShared" -ForegroundColor Cyan
+New-Junction "$env:USERPROFILE\.claude\skills" "$Repo\shared\skills"
+New-Junction "$env:USERPROFILE\.codex\skills"  "$Repo\shared\skills"
+
 # ── Claude ─────────────────────────────────────────────────────────────────────
 
 Write-Host "`nClaude" -ForegroundColor Cyan
 $claude = "$env:USERPROFILE\.claude"
 New-Junction  "$claude\docs"   "$Repo\docs"
 New-Junction  "$claude\hooks"  "$Repo\hooks"
-New-Junction  "$claude\skills" "$Repo\skills"
 New-Symlink   "$claude\CLAUDE.md"     "$Repo\CLAUDE.md"
 New-Symlink   "$claude\settings.json" "$Repo\settings.json"
 

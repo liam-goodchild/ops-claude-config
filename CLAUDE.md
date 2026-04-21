@@ -12,9 +12,9 @@ Tracked in version control (enforced by `.gitignore`):
 
 | Path | Tool | Purpose |
 |------|------|---------|
+| `shared/skills/` | Claude Code + Codex | Shared slash command definitions |
 | `settings.json` | Claude Code | Global tool permissions and model config |
 | `CLAUDE.md` | Claude Code | Global Claude system instructions |
-| `skills/` | Claude Code | Custom slash command definitions |
 | `hooks/` | Claude Code | Shell scripts wired to Claude Code events |
 | `codex/instructions.md` | Codex CLI | System prompt / custom instructions |
 | `codex/config.yaml` | Codex CLI | Model, approval mode, options |
@@ -30,7 +30,7 @@ credentials, etc.) is excluded.
 
 ## Skills
 
-Each skill lives in `skills/<name>/SKILL.md` and is a markdown file with YAML frontmatter. The frontmatter fields are:
+Each skill lives in `shared/skills/<name>/SKILL.md` and is a markdown file with YAML frontmatter. The frontmatter fields are:
 
 ```yaml
 ---
@@ -106,7 +106,7 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 ### Adding a new skill
 
-Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push. The skill is immediately available on any device after a `git pull`.
+Create `shared/skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push. The skill is immediately available on any device after a `git pull`.
 
 ### Setting up a new device
 

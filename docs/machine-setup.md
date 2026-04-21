@@ -32,18 +32,19 @@ re-run after pulling updates.
 
 ## What the Script Creates
 
-| Link type | From (tool location)                       | To (repo)            |
-| --------- | ------------------------------------------ | -------------------- |
-| Junction  | `~\.claude\docs`                           | `docs\`              |
-| Junction  | `~\.claude\hooks`                          | `hooks\`             |
-| Junction  | `~\.claude\skills`                         | `skills\`            |
-| Symlink   | `~\.claude\CLAUDE.md`                      | `CLAUDE.md`          |
-| Symlink   | `~\.claude\settings.json`                  | `settings.json`      |
-| Symlink   | `~\.codex\instructions.md`                 | `codex\instructions.md` |
-| Symlink   | `~\.codex\config.yaml`                     | `codex\config.yaml`  |
-| Symlink   | `%APPDATA%\Code\User\settings.json`        | `vscode\settings.json` |
+| Link type | From (tool location)                       | To (repo)                 |
+| --------- | ------------------------------------------ | ------------------------- |
+| Junction  | `~\.claude\skills`                         | `shared\skills\`          |
+| Junction  | `~\.codex\skills`                          | `shared\skills\`          |
+| Junction  | `~\.claude\docs`                           | `docs\`                   |
+| Junction  | `~\.claude\hooks`                          | `hooks\`                  |
+| Symlink   | `~\.claude\CLAUDE.md`                      | `CLAUDE.md`               |
+| Symlink   | `~\.claude\settings.json`                  | `settings.json`           |
+| Symlink   | `~\.codex\instructions.md`                 | `codex\instructions.md`   |
+| Symlink   | `~\.codex\config.yaml`                     | `codex\config.yaml`       |
+| Symlink   | `%APPDATA%\Code\User\settings.json`        | `vscode\settings.json`    |
 | Symlink   | `%APPDATA%\Code\User\keybindings.json`     | `vscode\keybindings.json` |
-| Symlink   | `~\.gitignore_global`                      | `git\gitignore_global` |
+| Symlink   | `~\.gitignore_global`                      | `git\gitignore_global`    |
 
 ## Pulling Updates on an Existing Machine
 

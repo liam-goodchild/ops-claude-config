@@ -37,8 +37,14 @@
       "path": "C:\\Program Files\\Git\\bin\\bash.exe",
       "args": ["-lc", "claude; exec bash"],
       "icon": "sparkle"
+    },
+    "Codex (Git Bash)": {
+      "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "args": ["-lc", "codex; exec bash"],
+      "icon": "hubot"
     }
   },
+  "terminal.integrated.hideOnStartup": "never",
 
   // --- Git ---
   "git.autofetch": true,

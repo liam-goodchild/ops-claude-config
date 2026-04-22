@@ -18,10 +18,10 @@ per-tool docs.
 
 ```powershell
 # 1. Clone the repo
-git clone https://github.com/liam-goodchild/ops-claude-config.git "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+git clone https://github.com/liam-goodchild/ops-developer-config.git "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 
 # 2. Run setup script (as Administrator)
-cd "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 .\scripts\setup.ps1
 
 # 3. Add the git include manually (see docs/git-setup.md)
@@ -32,24 +32,24 @@ re-run after pulling updates.
 
 ## What the Script Creates
 
-| Link type | From (tool location)                       | To (repo)                 |
-| --------- | ------------------------------------------ | ------------------------- |
-| Junction  | `~\.claude\skills`                         | `shared\skills\`          |
-| Junction  | `~\.codex\skills`                          | `shared\skills\`          |
-| Junction  | `~\.claude\docs`                           | `docs\`                   |
-| Junction  | `~\.claude\hooks`                          | `hooks\`                  |
-| Symlink   | `~\.claude\CLAUDE.md`                      | `CLAUDE.md`               |
-| Symlink   | `~\.claude\settings.json`                  | `settings.json`           |
-| Symlink   | `~\.codex\instructions.md`                 | `codex\instructions.md`   |
-| Symlink   | `~\.codex\config.yaml`                     | `codex\config.yaml`       |
-| Symlink   | `%APPDATA%\Code\User\settings.json`        | `vscode\settings.json`    |
-| Symlink   | `%APPDATA%\Code\User\keybindings.json`     | `vscode\keybindings.json` |
-| Symlink   | `~\.gitignore_global`                      | `git\gitignore_global`    |
+| Link type | From (tool location)                       | To (repo)                   |
+| --------- | ------------------------------------------ | --------------------------- |
+| Junction  | `~\.claude\skills`                         | `skills\`                   |
+| Junction  | `~\.agents\skills`                         | `skills\`                   |
+| Junction  | `~\.claude\docs`                           | `docs\`                     |
+| Symlink   | `~\.claude\CLAUDE.md`                      | `CLAUDE.md`                 |
+| Symlink   | `~\.claude\settings.json`                  | `claude\settings.json`      |
+| Symlink   | `~\.codex\instructions.md`                 | `codex\instructions.md`     |
+| Symlink   | `~\.codex\config.toml`                     | `codex\config.toml`         |
+| Symlink   | `%APPDATA%\Code\User\settings.json`        | `vscode\settings.json`      |
+| Symlink   | `%APPDATA%\Code\User\keybindings.json`     | `vscode\keybindings.json`   |
+| Symlink   | `~\.gitignore_global`                      | `git\gitignore_global`      |
+| Config    | `git config --global core.hooksPath`       | `git\hooks\`                |
 
 ## Pulling Updates on an Existing Machine
 
 ```powershell
-cd "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 git pull
 ```
 

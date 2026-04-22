@@ -12,12 +12,12 @@ Tracked in version control (enforced by `.gitignore`):
 
 | Path | Tool | Purpose |
 |------|------|---------|
-| `shared/skills/` | Claude Code + Codex | Shared slash command definitions |
-| `settings.json` | Claude Code | Global tool permissions and model config |
+| `skills/` | Claude Code + Codex | Shared slash command definitions |
+| `claude/settings.json` | Claude Code | Global tool permissions and model config |
 | `CLAUDE.md` | Claude Code | Global Claude system instructions |
-| `hooks/` | Claude Code | Shell scripts wired to Claude Code events |
+| `git/hooks/` | Git | Global git hooks (pre-commit, etc.) |
 | `codex/instructions.md` | Codex CLI | System prompt / custom instructions |
-| `codex/config.yaml` | Codex CLI | Model, approval mode, options |
+| `codex/config.toml` | Codex CLI | Model, reasoning effort, options |
 | `vscode/settings.json` | VS Code | Editor and extension settings |
 | `vscode/keybindings.json` | VS Code | Custom keyboard shortcuts |
 | `git/config.shared` | Git | Shared aliases and core settings (via `[include]`) |
@@ -30,7 +30,7 @@ credentials, etc.) is excluded.
 
 ## Skills
 
-Each skill lives in `shared/skills/<name>/SKILL.md` and is a markdown file with YAML frontmatter. The frontmatter fields are:
+Each skill lives in `skills/<name>/SKILL.md` and is a markdown file with YAML frontmatter. The frontmatter fields are:
 
 ```yaml
 ---
@@ -106,15 +106,15 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 ### Adding a new skill
 
-Create `shared/skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push. The skill is immediately available on any device after a `git pull`.
+Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push. The skill is immediately available on any device after a `git pull`.
 
 ### Setting up a new device
 
 Clone the repo and run the setup script (Windows, Administrator shell):
 
 ```powershell
-git clone https://github.com/liam-goodchild/ops-claude-config.git "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
-cd "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+git clone https://github.com/liam-goodchild/ops-developer-config.git "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
+cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 .\scripts\setup.ps1
 ```
 
@@ -124,7 +124,7 @@ on Linux/macOS.
 ### Pulling updates on an existing device
 
 ```powershell
-cd "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 git pull
 ```
 
@@ -139,12 +139,12 @@ The `gh` CLI is not on the bash `PATH` by default. Use the full path:
 /c/Program Files/GitHub CLI/gh.exe
 ```
 
-## settings.json
+## claude/settings.json
 
 Defines globally allowed tools. When adding new MCP tool permissions, add them to the `allow` array. The `deny` array is currently empty — prefer allowlist-only control.
 
 Plugins (marketplace and official) are configured under `enabledPlugins` — these are not synced via git and must be installed per-device.
 
-## hooks/
+## git/hooks/
 
-Hook scripts fire on Claude Code events (e.g. pre-commit). They are tracked in version control and apply globally across all projects on the machine.
+Global git hooks wired via `git config --global core.hooksPath`. Applied to every repo on the machine. Currently contains `pre-commit` for auto-formatting staged files.

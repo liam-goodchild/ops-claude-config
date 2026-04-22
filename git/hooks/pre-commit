@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Global pre-commit: auto-format staged files.
-# Activated via: git config --global core.hooksPath ~/.claude/hooks
+# Activated via: git config --global core.hooksPath <repo>/git/hooks
 
 # terraform fmt
 if command -v terraform &>/dev/null; then

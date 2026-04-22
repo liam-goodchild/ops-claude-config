@@ -1,0 +1,14 @@
+# Codex CLI configuration
+# Symlinked from ~/.codex/config.toml
+# Docs: https://developers.openai.com/codex/config-reference
+
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+model_instructions_file = "~/.codex/instructions.md"
+
+# Permissions — mirrors Claude Code's broad allow list
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[windows]
+sandbox = "unelevated"

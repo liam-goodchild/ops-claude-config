@@ -1,15 +1,14 @@
 # Exclude everything by default
 *
 
-# Shared
-!shared/
-!shared/**
+# Skills (shared: Claude + Codex)
+!skills/
+!skills/**
 
 # Claude Code
-!settings.json
+!claude/
+!claude/**
 !CLAUDE.md
-!hooks/
-!hooks/**
 
 # Codex CLI
 !codex/

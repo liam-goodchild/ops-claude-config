@@ -1,6 +1,6 @@
 {
   // --- Editor ---
-  "editor.fontSize": 14,
+  "editor.fontSize": 26,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.formatOnSave": true,
@@ -8,6 +8,7 @@
   "editor.minimap.enabled": false,
   "editor.stickyScroll.enabled": true,
   "editor.bracketPairColorization.enabled": true,
+  "editor.mouseWheelZoom": true,
 
   // --- Files ---
   "files.trimTrailingWhitespace": true,
@@ -26,6 +27,7 @@
 
   // --- Terminal ---
   "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "terminal.integrated.enableMultiLinePasteWarning": false,
   "terminal.integrated.profiles.windows": {
     "Git Bash": {
       "path": "C:\\Program Files\\Git\\bin\\bash.exe",
@@ -33,7 +35,7 @@
     },
     "Claude (Git Bash)": {
       "path": "C:\\Program Files\\Git\\bin\\bash.exe",
-      "args": ["-c", "claude; exec bash"],
+      "args": ["-lc", "claude; exec bash"],
       "icon": "sparkle"
     }
   },
@@ -43,16 +45,26 @@
   "git.confirmSync": false,
   "git.enableSmartCommit": true,
   "git.pruneOnFetch": true,
-  "git.openRepositoryInParentFolders": "always",
+  "git.openRepositoryInParentFolders": "never",
 
   // --- Workbench ---
   "workbench.startupEditor": "none",
   "workbench.editor.enablePreview": false,
+  "workbench.editor.empty.hint": "hidden",
   "workbench.colorTheme": "Default Dark Modern",
   "workbench.iconTheme": "material-icon-theme",
+  "workbench.panel.defaultLocation": "right",
+
+  // --- Security ---
+  "security.workspace.trust.untrustedFiles": "open",
 
   // --- Extensions ---
   "extensions.ignoreRecommendations": false,
+  "githubPullRequests.pushBranch": "always",
+
+  // --- Claude Code ---
+  "claudeCode.preferredLocation": "panel",
+  "claudeCode.selectedModel": "opus",
 
   // --- Language: Terraform ---
   "[terraform]": {

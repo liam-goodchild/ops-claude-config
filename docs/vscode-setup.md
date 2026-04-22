@@ -18,7 +18,7 @@ symlinked from this repo.
 Run `scripts/setup.ps1` (see [machine-setup.md](machine-setup.md)), or manually:
 
 ```powershell
-$repo      = "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+$repo      = "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 $vscodeUser = "$env:APPDATA\Code\User"
 
 cmd /c mklink "$vscodeUser\settings.json"    "$repo\vscode\settings.json"

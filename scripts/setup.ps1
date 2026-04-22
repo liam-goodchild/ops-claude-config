@@ -1,20 +1,20 @@
-#Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Wires up all tool config symlinks/junctions from ops-claude-config.
+    Wires up all tool config symlinks/junctions from ops-developer-config.
 
 .DESCRIPTION
     Creates junctions (directories) and symlinks (files) from each tool's
     expected config location into this repository. Run once on each new machine.
-    Requires Administrator or Developer Mode on Windows.
+    Requires Developer Mode enabled (Settings → For Developers → Developer Mode)
+    or an Administrator shell.
 
 .PARAMETER Repo
-    Absolute path to the ops-claude-config repository root.
+    Absolute path to the ops-developer-config repository root.
     Defaults to the parent directory of this script.
 
 .EXAMPLE
     .\setup.ps1
-    .\setup.ps1 -Repo "C:\Local Files\Repositories\ops-claude-config"
+    .\setup.ps1 -Repo "C:\Local Files\Repositories\ops-developer-config"
 #>
 
 param (
@@ -48,27 +48,26 @@ function New-Symlink {
     Write-Host "  [symlink] $Link -> $Target" -ForegroundColor Green
 }
 
-# ── Shared ─────────────────────────────────────────────────────────────────────
+# ── Skills (shared: Claude + Codex) ────────────────────────────────────────────
 
-Write-Host "`nShared" -ForegroundColor Cyan
-New-Junction "$env:USERPROFILE\.claude\skills" "$Repo\shared\skills"
-New-Junction "$env:USERPROFILE\.codex\skills"  "$Repo\shared\skills"
+Write-Host "`nSkills" -ForegroundColor Cyan
+New-Junction "$env:USERPROFILE\.claude\skills" "$Repo\skills"
+New-Junction "$env:USERPROFILE\.agents\skills"  "$Repo\skills"
 
 # ── Claude ─────────────────────────────────────────────────────────────────────
 
 Write-Host "`nClaude" -ForegroundColor Cyan
 $claude = "$env:USERPROFILE\.claude"
 New-Junction  "$claude\docs"   "$Repo\docs"
-New-Junction  "$claude\hooks"  "$Repo\hooks"
 New-Symlink   "$claude\CLAUDE.md"     "$Repo\CLAUDE.md"
-New-Symlink   "$claude\settings.json" "$Repo\settings.json"
+New-Symlink   "$claude\settings.json" "$Repo\claude\settings.json"
 
 # ── Codex ──────────────────────────────────────────────────────────────────────
 
 Write-Host "`nCodex" -ForegroundColor Cyan
 $codex = "$env:USERPROFILE\.codex"
 New-Symlink "$codex\instructions.md" "$Repo\codex\instructions.md"
-New-Symlink "$codex\config.yaml"     "$Repo\codex\config.yaml"
+New-Symlink "$codex\config.toml"     "$Repo\codex\config.toml"
 
 # ── VS Code ────────────────────────────────────────────────────────────────────
 
@@ -90,6 +89,16 @@ if (-not $currentExcludesFile) {
     Write-Host "  [config] core.excludesfile = $gitignorePath" -ForegroundColor Green
 } else {
     Write-Host "  [skip] core.excludesfile already set to $currentExcludesFile" -ForegroundColor DarkGray
+}
+
+# Wire global git hooks
+$hooksPath = "$Repo\git\hooks"
+$currentHooksPath = git config --global core.hooksPath 2>$null
+if (-not $currentHooksPath) {
+    git config --global core.hooksPath $hooksPath
+    Write-Host "  [config] core.hooksPath = $hooksPath" -ForegroundColor Green
+} else {
+    Write-Host "  [skip] core.hooksPath already set to $currentHooksPath" -ForegroundColor DarkGray
 }
 
 # Remind about the shared git config include

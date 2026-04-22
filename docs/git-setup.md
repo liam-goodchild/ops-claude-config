@@ -16,17 +16,21 @@ per-machine identity (`[user]`), credentials, and local paths. Instead:
 | ---------------------- | -------------------------------------- | ------------------------------ |
 | `git/config.shared`    | Included by `~/.gitconfig` via `[include]` | Aliases, core, push, merge settings |
 | `git/gitignore_global` | Symlinked to `~/.gitignore_global`     | Global gitignore patterns      |
+| `git/hooks/`           | `core.hooksPath` points here           | Global git hooks (pre-commit, etc.) |
 
 ## Setup
 
 Run `scripts/setup.ps1` (see [machine-setup.md](machine-setup.md)), or manually:
 
 ```powershell
-$repo = "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+$repo = "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 
 # Symlink global gitignore
 cmd /c mklink "$env:USERPROFILE\.gitignore_global" "$repo\git\gitignore_global"
 git config --global core.excludesfile "$env:USERPROFILE\.gitignore_global"
+
+# Wire global git hooks
+git config --global core.hooksPath "$repo\git\hooks"
 
 # Add the shared config include to ~/.gitconfig
 Add-Content "$env:USERPROFILE\.gitconfig" "`n[include]`n    path = $repo/git/config.shared"
@@ -36,7 +40,7 @@ Or add the `[include]` block manually to `~/.gitconfig`:
 
 ```ini
 [include]
-    path = C:/Local Files/Repositories/Sky Haven/ops-claude-config/git/config.shared
+    path = C:/Local Files/Repositories/Sky Haven/ops-developer-config/git/config.shared
 ```
 
 ## What Goes in `~/.gitconfig` (Not Tracked)
@@ -50,7 +54,7 @@ Or add the `[include]` block manually to `~/.gitconfig`:
     helper = manager
 
 [include]
-    path = C:/Local Files/Repositories/Sky Haven/ops-claude-config/git/config.shared
+    path = C:/Local Files/Repositories/Sky Haven/ops-developer-config/git/config.shared
 ```
 
 ## Aliases Reference

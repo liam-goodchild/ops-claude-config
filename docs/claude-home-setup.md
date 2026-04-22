@@ -4,18 +4,17 @@
 
 `~/.claude` is a real directory containing both runtime data (local only) and
 tracked configuration (symlinked/junctioned from this repo). This lets
-`ops-claude-config` version-control settings, skills, hooks, and docs without
+`ops-developer-config` version-control settings, skills, hooks, and docs without
 polluting git with session data.
 
 ## Directory Structure
 
 ```
 ~/.claude/
-├── docs/          → Junction  → ops-claude-config/docs/
-├── hooks/         → Junction  → ops-claude-config/hooks/
-├── skills/        → Junction  → ops-claude-config/shared/skills/
-├── CLAUDE.md      → Symlink   → ops-claude-config/CLAUDE.md
-├── settings.json  → Symlink   → ops-claude-config/settings.json
+├── docs/          → Junction  → ops-developer-config/docs/
+├── skills/        → Junction  → ops-developer-config/skills/
+├── CLAUDE.md      → Symlink   → ops-developer-config/CLAUDE.md
+├── settings.json  → Symlink   → ops-developer-config/claude/settings.json
 │
 ├── backups/           (runtime, local only)
 ├── cache/             (runtime, local only)
@@ -46,17 +45,17 @@ polluting git with session data.
 
 ## What Is Tracked in Git
 
-Only items inside `ops-claude-config/` are versioned:
+Only items inside `ops-developer-config/` are versioned:
 
-| Item            | Type           | Purpose                              |
-| --------------- | -------------- | ------------------------------------ |
-| `docs/`         | Directory      | Reference documentation (this file) |
-| `hooks/`        | Directory      | Claude Code event hooks              |
-| `shared/skills/` | Directory     | Shared slash-command skills (Claude + Codex) |
-| `CLAUDE.md`     | File           | Global Claude system instructions   |
-| `settings.json` | File           | Claude Code settings                 |
-| `.gitignore`    | File           | Excludes all runtime data from git   |
-| `README.md`     | File           | Repo overview                        |
+| Item              | Type           | Purpose                              |
+| ----------------- | -------------- | ------------------------------------ |
+| `docs/`           | Directory      | Reference documentation (this file) |
+| `skills/`         | Directory      | Shared slash-command skills (Claude + Codex) |
+| `claude/`         | Directory      | Claude-specific config files         |
+| `CLAUDE.md`       | File           | Global Claude system instructions   |
+| `claude/settings.json` | File      | Claude Code settings                 |
+| `.gitignore`      | File           | Excludes all runtime data from git   |
+| `README.md`       | File           | Repo overview                        |
 
 ## How Junctions and Symlinks Work
 
@@ -69,24 +68,23 @@ To recreate the links on a new machine, run from an elevated or Developer Mode
 shell:
 
 ```powershell
-$repo  = "C:\Local Files\Repositories\Sky Haven\ops-claude-config"
+$repo  = "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 $claude = "$env:USERPROFILE\.claude"
 
 # Junctions for directories
 cmd /c mklink /J "$claude\docs"   "$repo\docs"
-cmd /c mklink /J "$claude\hooks"  "$repo\hooks"
-cmd /c mklink /J "$claude\skills" "$repo\shared\skills"
+cmd /c mklink /J "$claude\skills" "$repo\skills"
 
 # Symlinks for files
 cmd /c mklink "$claude\CLAUDE.md"     "$repo\CLAUDE.md"
-cmd /c mklink "$claude\settings.json" "$repo\settings.json"
+cmd /c mklink "$claude\settings.json" "$repo\claude\settings.json"
 ```
 
 ## Migration History
 
 | Date       | Action                                                                 |
 | ---------- | ---------------------------------------------------------------------- |
-| 2026-04-19 | `~/.claude` was a junction pointing directly to `ops-claude-config`    |
+| 2026-04-19 | `~/.claude` was a junction pointing directly to `ops-developer-config`    |
 | 2026-04-19 | Junction removed; real `~/.claude` created                             |
 | 2026-04-19 | Runtime dirs/files moved from repo → `~/.claude`                      |
 | 2026-04-19 | Junctions created for `docs/`, `hooks/`, `skills/`                    |

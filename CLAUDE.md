@@ -4,16 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is a portable Claude Code configuration repository. It is cloned to `~/.claude` on each device to provide consistent settings and custom skills across machines.
+This is a portable developer configuration repository. Junctions and symlinks
+connect each tool's expected config location into this repo, so a single
+`git pull` updates all tools on a machine simultaneously.
 
 Tracked in version control (enforced by `.gitignore`):
-- `settings.json` — global tool permissions and model config
-- `skills/` — custom slash command definitions
-- `hooks/` — shell scripts wired to Claude Code hook events
-- `docs/` — supporting documentation
-- `README.md`, `CLAUDE.md`
 
-Everything else in `~/.claude` (sessions, history, cache, credentials, memory, plugins, etc.) is excluded.
+| Path | Tool | Purpose |
+|------|------|---------|
+| `skills/` | Claude Code + Codex | Shared slash command definitions |
+| `claude/settings.json` | Claude Code | Global tool permissions and model config |
+| `CLAUDE.md` | Claude Code | Global Claude system instructions |
+| `git/hooks/` | Git | Global git hooks (pre-commit, etc.) |
+| `codex/instructions.md` | Codex CLI | System prompt / custom instructions |
+| `codex/config.toml` | Codex CLI | Model, reasoning effort, options |
+| `vscode/settings.json` | VS Code | Editor and extension settings |
+| `vscode/keybindings.json` | VS Code | Custom keyboard shortcuts |
+| `git/config.shared` | Git | Shared aliases and core settings (via `[include]`) |
+| `git/gitignore_global` | Git | Global gitignore patterns |
+| `scripts/setup.ps1` | All | One-shot link creation for a new Windows machine |
+| `docs/` | — | Per-tool setup documentation |
+
+Everything else in each tool's config directory (sessions, history, cache,
+credentials, etc.) is excluded.
 
 ## Skills
 
@@ -53,11 +66,10 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 | `format-ado-pipelines` | Azure DevOps pipeline file structure, layout, and formatting standards |
 | `format-gha-pipelines` | GitHub Actions workflow file structure, layout, and formatting standards |
 
-**Compare / Generate**
+**Generate**
 
 | Skill | Purpose |
 |-------|---------|
-| `compare-environments` | Diff IaC params across dev/uat/prod |
 | `generate-diagram` | Mermaid architecture diagrams from IaC/code |
 | `generate-cost-estimate` | Azure cost estimate from IaC |
 | `generate-readme` | Brief project README from code and standards template |
@@ -83,6 +95,12 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 | `git-cleanup` | Delete merged branches, prune remotes |
 | `git-commit-push` | Stage, commit, and push with safety checks |
 
+**Microsoft Foundry**
+
+| Skill | Purpose |
+|-------|---------|
+| `microsoft-foundry` | Full Foundry agent lifecycle: deploy, invoke, observe, evaluate, optimize prompts, manage models/quota/RBAC, and provision projects |
+
 **Other**
 
 | Skill | Purpose |
@@ -95,16 +113,38 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push. The skill is immediately available on any device after a `git pull`.
 
-### Syncing to a new device
+### Setting up a new device
 
-```bash
-git clone https://github.com/liam-goodchild/ops-claude-config.git ~/.claude
+Clone the repo and run the setup script (Windows):
+
+```powershell
+git clone https://github.com/liam-goodchild/ops-developer-config.git "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
+cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
+.\scripts\setup.ps1
 ```
+
+The script creates junctions for directories and file symlinks where possible.
+On domain-joined machines where Group Policy blocks symlink creation, it falls
+back to file copies and prints a reminder — run `.\scripts\setup.ps1` again
+after each `git pull` to refresh the copies. An Administrator shell bypasses
+this restriction and produces true symlinks.
+
+See `docs/machine-setup.md` for full prerequisites and the manual equivalent
+on Linux/macOS.
 
 ### Pulling updates on an existing device
 
-```bash
-cd ~/.claude && git pull
+```powershell
+cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
+git pull
+```
+
+If setup created **symlinks/junctions** (admin or Developer Mode was available),
+the pull is immediately live. If setup fell back to **file copies**, re-run the
+setup script after pulling to refresh them:
+
+```powershell
+.\scripts\setup.ps1
 ```
 
 ### gh CLI path (Windows)
@@ -115,12 +155,25 @@ The `gh` CLI is not on the bash `PATH` by default. Use the full path:
 /c/Program Files/GitHub CLI/gh.exe
 ```
 
-## settings.json
+## claude/settings.json
 
 Defines globally allowed tools. When adding new MCP tool permissions, add them to the `allow` array. The `deny` array is currently empty — prefer allowlist-only control.
 
 Plugins (marketplace and official) are configured under `enabledPlugins` — these are not synced via git and must be installed per-device.
 
-## hooks/
+## git/hooks/
 
-Hook scripts fire on Claude Code events (e.g. pre-commit). They are tracked in version control and apply globally across all projects on the machine.
+Global git hooks wired via `git config --global core.hooksPath`. Applied to every repo on the machine. The `pre-commit` hook auto-formats staged files before each commit:
+
+- **`.tf` / `.tfvars`** — runs `terraform fmt -recursive`
+- **`.yaml` / `.yml` / `.json`** — runs `prettier --write`, using `.github/linters/.prettierrc.json` if present
+
+Both formatters re-stage the files they modify. Formatting errors are non-fatal (the commit proceeds).
+
+## Code Style
+
+These conventions apply across all IaC and scripting work in connected repositories:
+
+- **Terraform**: 2-space indent, explicit provider versions, use `for_each` instead of `count` for resource toggling
+- **Shell**: Bash with `set -euo pipefail`; quote all variable expansions; prefer idempotent operations
+- **YAML / JSON**: 2-space indent, no trailing whitespace

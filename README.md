@@ -1,3 +1,3 @@
-# ops-claude-config
+# ops-developer-config
 
-Portable Claude Code configuration synced across machines via git. Tracks global tool permissions and a library of custom slash command skills for infrastructure review, formatting, code generation, and repo management.
+Portable developer configuration repository for Claude Code, Codex CLI, VS Code, and Git. Junctions and symlinks connect each tool's expected config location into this repo, so a single `git pull` updates all tools on a machine simultaneously. On domain-joined machines where Group Policy blocks file symlinks, the setup script falls back to file copies — re-run `.\scripts\setup.ps1` after each pull to refresh them. Includes shared Claude Code slash command skills, global git hooks, and a one-shot setup script for new Windows machines.

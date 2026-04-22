@@ -115,13 +115,19 @@ Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commi
 
 ### Setting up a new device
 
-Clone the repo and run the setup script (Windows, Administrator shell):
+Clone the repo and run the setup script (Windows):
 
 ```powershell
 git clone https://github.com/liam-goodchild/ops-developer-config.git "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 .\scripts\setup.ps1
 ```
+
+The script creates junctions for directories and file symlinks where possible.
+On domain-joined machines where Group Policy blocks symlink creation, it falls
+back to file copies and prints a reminder — run `.\scripts\setup.ps1` again
+after each `git pull` to refresh the copies. An Administrator shell bypasses
+this restriction and produces true symlinks.
 
 See `docs/machine-setup.md` for full prerequisites and the manual equivalent
 on Linux/macOS.
@@ -133,8 +139,13 @@ cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 git pull
 ```
 
-Because all config locations point into the repo via junctions/symlinks, the
-pull is immediately live — no re-running the setup script needed.
+If setup created **symlinks/junctions** (admin or Developer Mode was available),
+the pull is immediately live. If setup fell back to **file copies**, re-run the
+setup script after pulling to refresh them:
+
+```powershell
+.\scripts\setup.ps1
+```
 
 ### gh CLI path (Windows)
 

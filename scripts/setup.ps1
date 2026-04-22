@@ -6,7 +6,11 @@
     Creates junctions (directories) and symlinks (files) from each tool's
     expected config location into this repository. Run once on each new machine.
     Requires Developer Mode enabled (Settings → For Developers → Developer Mode)
-    or an Administrator shell.
+    or an Administrator shell for file symlinks.
+
+    On machines where symlinks are blocked (e.g. by Group Policy), the script
+    falls back to copying files and prints a reminder to re-run setup after
+    each git pull.
 
 .PARAMETER Repo
     Absolute path to the ops-developer-config repository root.
@@ -23,15 +27,57 @@ param (
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$script:copyFallback = 0
+
+# ── Preflight: can we create file symlinks? ─────────────────────────────────────
+
+$canSymlink = $false
+$testTarget = [System.IO.Path]::GetTempFileName()
+$testLink   = $testTarget + ".lnk"
+try {
+    New-Item -ItemType SymbolicLink -Path $testLink -Value $testTarget -ErrorAction Stop | Out-Null
+    Remove-Item $testLink -Force -ErrorAction SilentlyContinue
+    $canSymlink = $true
+} catch { }
+finally {
+    Remove-Item $testTarget -Force -ErrorAction SilentlyContinue
+}
+
+if (-not $canSymlink) {
+    Write-Host @"
+
+  WARNING: File symlinks are not available on this machine.
+  Cause:   Group Policy likely overrides Developer Mode (common on domain-joined
+           corporate machines). Admin shells are unaffected.
+
+  Falling back to file copies for all symlink targets.
+  After each 'git pull', re-run this script to refresh the copies.
+
+  To get true symlinks: re-run from an Administrator shell.
+
+"@ -ForegroundColor Yellow
+}
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
+function Remove-IfReal {
+    param([string]$Path)
+    $item = Get-Item $Path -ErrorAction SilentlyContinue
+    if (-not $item) { return }
+    $isReparse = $item.Attributes -band [System.IO.FileAttributes]::ReparsePoint
+    if ($isReparse) { return }  # already a junction/symlink, let callers decide
+    Write-Host "  [remove] $Path (real item - repo is source of truth)" -ForegroundColor Yellow
+    Remove-Item $Path -Recurse -Force
+}
+
 function New-Junction {
     param([string]$Link, [string]$Target)
-    if (Test-Path $Link) {
-        Write-Host "  [skip] $Link already exists" -ForegroundColor DarkGray
+    $item = Get-Item $Link -ErrorAction SilentlyContinue
+    if ($item -and ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+        Write-Host "  [skip] $Link already linked" -ForegroundColor DarkGray
         return
     }
+    Remove-IfReal $Link
     New-Item -ItemType Directory -Path (Split-Path $Link) -Force | Out-Null
     cmd /c mklink /J `"$Link`" `"$Target`" | Out-Null
     Write-Host "  [junction] $Link -> $Target" -ForegroundColor Green
@@ -39,13 +85,28 @@ function New-Junction {
 
 function New-Symlink {
     param([string]$Link, [string]$Target)
-    if (Test-Path $Link) {
-        Write-Host "  [skip] $Link already exists" -ForegroundColor DarkGray
+    $item = Get-Item $Link -ErrorAction SilentlyContinue
+    if ($item -and ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+        Write-Host "  [skip] $Link already linked" -ForegroundColor DarkGray
         return
     }
+    Remove-IfReal $Link
     New-Item -ItemType Directory -Path (Split-Path $Link) -Force | Out-Null
-    cmd /c mklink `"$Link`" `"$Target`" | Out-Null
-    Write-Host "  [symlink] $Link -> $Target" -ForegroundColor Green
+
+    if ($canSymlink) {
+        try {
+            New-Item -ItemType SymbolicLink -Path $Link -Value $Target -ErrorAction Stop | Out-Null
+            Write-Host "  [symlink] $Link -> $Target" -ForegroundColor Green
+            return
+        } catch {
+            Write-Host "  [warn] Symlink failed ($($_.Exception.Message)), falling back to copy" -ForegroundColor Yellow
+        }
+    }
+
+    # Copy fallback
+    Copy-Item -Path $Target -Destination $Link -Force
+    Write-Host "  [copy]    $Link <- $Target" -ForegroundColor Cyan
+    $script:copyFallback++
 }
 
 # ── Skills (shared: Claude + Codex) ────────────────────────────────────────────
@@ -58,7 +119,7 @@ New-Junction "$env:USERPROFILE\.agents\skills"  "$Repo\skills"
 
 Write-Host "`nClaude" -ForegroundColor Cyan
 $claude = "$env:USERPROFILE\.claude"
-New-Junction  "$claude\docs"   "$Repo\docs"
+New-Junction  "$claude\docs"          "$Repo\docs"
 New-Symlink   "$claude\CLAUDE.md"     "$Repo\CLAUDE.md"
 New-Symlink   "$claude\settings.json" "$Repo\claude\settings.json"
 
@@ -114,4 +175,8 @@ Write-Host @"
 
 # ── Done ───────────────────────────────────────────────────────────────────────
 
-Write-Host "Done. All links created.`n" -ForegroundColor Green
+if ($script:copyFallback -gt 0) {
+    Write-Host "Done. $($script:copyFallback) file(s) copied (not linked) -- re-run setup after git pull.`n" -ForegroundColor Cyan
+} else {
+    Write-Host "Done. All links created.`n" -ForegroundColor Green
+}

@@ -29,19 +29,19 @@
   "terminal.integrated.defaultProfile.windows": "Git Bash",
   "terminal.integrated.enableMultiLinePasteWarning": false,
   "terminal.integrated.profiles.windows": {
-    "Git Bash": {
-      "path": "C:\\Program Files\\Git\\bin\\bash.exe",
-      "icon": "terminal-bash"
-    },
-    "Claude (Git Bash)": {
+    "Claude": {
       "path": "C:\\Program Files\\Git\\bin\\bash.exe",
       "args": ["-lc", "claude; exec bash"],
       "icon": "sparkle"
     },
-    "Codex (Git Bash)": {
+    "Codex": {
       "path": "C:\\Program Files\\Git\\bin\\bash.exe",
       "args": ["-lc", "codex; exec bash"],
       "icon": "hubot"
+    },
+    "Git Bash": {
+      "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "icon": "terminal-bash"
     }
   },
   "terminal.integrated.hideOnStartup": "never",
@@ -57,7 +57,7 @@
   "workbench.startupEditor": "none",
   "workbench.editor.enablePreview": false,
   "workbench.editor.empty.hint": "hidden",
-  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.colorTheme": "Dark Modern",
   "workbench.iconTheme": "material-icon-theme",
   "workbench.panel.defaultLocation": "right",
 

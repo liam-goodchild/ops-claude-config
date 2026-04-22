@@ -66,11 +66,10 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 | `format-ado-pipelines` | Azure DevOps pipeline file structure, layout, and formatting standards |
 | `format-gha-pipelines` | GitHub Actions workflow file structure, layout, and formatting standards |
 
-**Compare / Generate**
+**Generate**
 
 | Skill | Purpose |
 |-------|---------|
-| `compare-environments` | Diff IaC params across dev/uat/prod |
 | `generate-diagram` | Mermaid architecture diagrams from IaC/code |
 | `generate-cost-estimate` | Azure cost estimate from IaC |
 | `generate-readme` | Brief project README from code and standards template |
@@ -95,6 +94,12 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 |-------|---------|
 | `git-cleanup` | Delete merged branches, prune remotes |
 | `git-commit-push` | Stage, commit, and push with safety checks |
+
+**Microsoft Foundry**
+
+| Skill | Purpose |
+|-------|---------|
+| `microsoft-foundry` | Full Foundry agent lifecycle: deploy, invoke, observe, evaluate, optimize prompts, manage models/quota/RBAC, and provision projects |
 
 **Other**
 
@@ -147,4 +152,17 @@ Plugins (marketplace and official) are configured under `enabledPlugins` — the
 
 ## git/hooks/
 
-Global git hooks wired via `git config --global core.hooksPath`. Applied to every repo on the machine. Currently contains `pre-commit` for auto-formatting staged files.
+Global git hooks wired via `git config --global core.hooksPath`. Applied to every repo on the machine. The `pre-commit` hook auto-formats staged files before each commit:
+
+- **`.tf` / `.tfvars`** — runs `terraform fmt -recursive`
+- **`.yaml` / `.yml` / `.json`** — runs `prettier --write`, using `.github/linters/.prettierrc.json` if present
+
+Both formatters re-stage the files they modify. Formatting errors are non-fatal (the commit proceeds).
+
+## Code Style
+
+These conventions apply across all IaC and scripting work in connected repositories:
+
+- **Terraform**: 2-space indent, explicit provider versions, use `for_each` instead of `count` for resource toggling
+- **Shell**: Bash with `set -euo pipefail`; quote all variable expansions; prefer idempotent operations
+- **YAML / JSON**: 2-space indent, no trailing whitespace

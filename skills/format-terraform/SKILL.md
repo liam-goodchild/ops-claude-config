@@ -1,6 +1,6 @@
 ---
 name: format-terraform
-description: Enforce Terraform file structure, naming, tagging, pinning, and formatting standards — objective pass/fail checks
+description: Enforce Terraform file structure, tfvars area comment blocks, naming, tagging, pinning, and formatting standards — objective pass/fail checks
 ---
 
 Terraform linter. Hard requirements — every deviation is a finding. Scan all `.tf` and `.tfvars` files in the repo. Report all violations, then offer to auto-fix.
@@ -148,13 +148,32 @@ Every `variable` without `default` must receive a value from: `.tfvars` files, p
 
 Do **not** flag variables with `default` (even `default = null`).
 
+### 12. tfvars Area Comment Blocks
+
+Every `.tfvars` file must group assignments by the functional area they supply values to, and each non-empty group must be introduced by an area comment block.
+
+Required format:
+
+```hcl
+#########################################
+# PLACEHOLDER
+#########################################
+```
+
+- Use the exact 41-character hash separator line shown above.
+- Replace `PLACEHOLDER` with a short uppercase area name, e.g. `GLOBAL SETTINGS`, `NETWORKING`, `KEY VAULT`, `MONITORING`, `IDENTITY`, or `BUDGETS`.
+- Add comment blocks only for areas that have values in that `.tfvars` file. Do not add empty area headers.
+- Place each variable assignment under the comment block for the area it configures. If a file contains values for multiple areas, each area needs its own block.
+- Keep exactly one blank line between the end of one area and the next comment block.
+- Flag missing, malformed, lowercase, generic, duplicated, or unnecessary area comment blocks.
+
 ---
 
 ## Output
 
 List each violation:
 
-- **Rule:** number (1–11)
+- **Rule:** number (1–12)
 - **File:** path
 - **Finding:** what's wrong
 - **Fix:** what to do

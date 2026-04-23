@@ -5,12 +5,18 @@
 .DESCRIPTION
     Creates junctions (directories) and symlinks (files) from each tool's
     expected config location into this repository. Run once on each new machine.
-    Requires Developer Mode enabled (Settings → For Developers → Developer Mode)
+    Requires Developer Mode enabled (Settings -> For Developers -> Developer Mode)
     or an Administrator shell for file symlinks.
 
     On machines where symlinks are blocked (e.g. by Group Policy), the script
     falls back to copying files and prints a reminder to re-run setup after
     each git pull.
+
+    Skills are sourced from this repository's skills/ directory. Claude receives
+    a single skills junction. Codex receives per-skill junctions under
+    ~/.codex/skills so Codex-managed system skills under ~/.codex/skills/.system
+    are preserved. The legacy ~/.agents/skills junction is removed only when it
+    points at this repo's skills directory.
 
 .PARAMETER Repo
     Absolute path to the ops-developer-config repository root.
@@ -29,11 +35,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $script:copyFallback = 0
 
-# ── Preflight: can we create file symlinks? ─────────────────────────────────────
+# -- Preflight: can we create file symlinks? -------------------------------
 
 $canSymlink = $false
 $testTarget = [System.IO.Path]::GetTempFileName()
-$testLink   = $testTarget + ".lnk"
+$testLink = $testTarget + ".lnk"
 try {
     New-Item -ItemType SymbolicLink -Path $testLink -Value $testTarget -ErrorAction Stop | Out-Null
     Remove-Item $testLink -Force -ErrorAction SilentlyContinue
@@ -58,21 +64,21 @@ if (-not $canSymlink) {
 "@ -ForegroundColor Yellow
 }
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+# -- Helpers ----------------------------------------------------------------
 
 function Remove-IfReal {
     param([string]$Path)
-    $item = Get-Item $Path -ErrorAction SilentlyContinue
+    $item = Get-Item -LiteralPath $Path -ErrorAction SilentlyContinue
     if (-not $item) { return }
     $isReparse = $item.Attributes -band [System.IO.FileAttributes]::ReparsePoint
     if ($isReparse) { return }  # already a junction/symlink, let callers decide
     Write-Host "  [remove] $Path (real item - repo is source of truth)" -ForegroundColor Yellow
-    Remove-Item $Path -Recurse -Force
+    Remove-Item -LiteralPath $Path -Recurse -Force
 }
 
 function New-Junction {
     param([string]$Link, [string]$Target)
-    $item = Get-Item $Link -ErrorAction SilentlyContinue
+    $item = Get-Item -LiteralPath $Link -ErrorAction SilentlyContinue
     if ($item -and ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
         Write-Host "  [skip] $Link already linked" -ForegroundColor DarkGray
         return
@@ -85,7 +91,7 @@ function New-Junction {
 
 function New-Symlink {
     param([string]$Link, [string]$Target)
-    $item = Get-Item $Link -ErrorAction SilentlyContinue
+    $item = Get-Item -LiteralPath $Link -ErrorAction SilentlyContinue
     if ($item -and ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
         Write-Host "  [skip] $Link already linked" -ForegroundColor DarkGray
         return
@@ -104,40 +110,118 @@ function New-Symlink {
     }
 
     # Copy fallback
-    Copy-Item -Path $Target -Destination $Link -Force
+    Copy-Item -LiteralPath $Target -Destination $Link -Force
     Write-Host "  [copy]    $Link <- $Target" -ForegroundColor Cyan
     $script:copyFallback++
 }
 
-# ── Skills (shared: Claude + Codex) ────────────────────────────────────────────
+function Normalize-PathForCompare {
+    param([string]$Path)
+    try {
+        return ([System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $Path -ErrorAction Stop).Path)).TrimEnd("\")
+    } catch {
+        return ([System.IO.Path]::GetFullPath($Path)).TrimEnd("\")
+    }
+}
+
+function Test-ReparseTarget {
+    param([string]$Link, [string]$ExpectedTarget)
+    $item = Get-Item -LiteralPath $Link -ErrorAction SilentlyContinue
+    if (-not $item) { return $false }
+    if (-not ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { return $false }
+
+    $expected = Normalize-PathForCompare $ExpectedTarget
+    foreach ($target in @($item.Target)) {
+        if (-not $target) { continue }
+        if ((Normalize-PathForCompare $target) -ieq $expected) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Remove-DirectoryReparsePoint {
+    param([string]$Path)
+    $item = Get-Item -LiteralPath $Path -ErrorAction SilentlyContinue
+    if (-not $item) { return }
+    if (-not ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+        throw "Refusing to remove non-reparse directory: $Path"
+    }
+    [System.IO.Directory]::Delete($Path)
+}
+
+function Initialize-CodexSkillsDirectory {
+    param([string]$Path, [string]$RepoSkills)
+    $item = Get-Item -LiteralPath $Path -ErrorAction SilentlyContinue
+    if ($item -and ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) {
+        if (Test-ReparseTarget $Path $RepoSkills) {
+            Remove-DirectoryReparsePoint $Path
+            Write-Host "  [remove] $Path legacy whole-directory junction" -ForegroundColor Yellow
+        } else {
+            Write-Host "  [warn] $Path is linked elsewhere; leaving Codex skills unchanged" -ForegroundColor Yellow
+            return $false
+        }
+    }
+
+    New-Item -ItemType Directory -Path $Path -Force | Out-Null
+    return $true
+}
+
+function New-CodexSkillJunctions {
+    param([string]$CodexSkills, [string]$RepoSkills)
+    if (-not (Initialize-CodexSkillsDirectory $CodexSkills $RepoSkills)) {
+        return
+    }
+
+    Get-ChildItem -LiteralPath $RepoSkills -Directory | ForEach-Object {
+        New-Junction "$CodexSkills\$($_.Name)" $_.FullName
+    }
+}
+
+function Remove-LegacyAgentsSkillsJunction {
+    param([string]$Link, [string]$RepoSkills)
+    $item = Get-Item -LiteralPath $Link -ErrorAction SilentlyContinue
+    if (-not $item) { return }
+
+    if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -and (Test-ReparseTarget $Link $RepoSkills)) {
+        Remove-DirectoryReparsePoint $Link
+        Write-Host "  [remove] $Link legacy Codex skills junction" -ForegroundColor Yellow
+        return
+    }
+
+    Write-Host "  [skip] $Link exists and is not the legacy repo junction" -ForegroundColor DarkGray
+}
+
+# -- Skills (repo source of truth) -----------------------------------------
 
 Write-Host "`nSkills" -ForegroundColor Cyan
-New-Junction "$env:USERPROFILE\.claude\skills" "$Repo\skills"
-New-Junction "$env:USERPROFILE\.agents\skills"  "$Repo\skills"
+$claude = "$env:USERPROFILE\.claude"
+$codex = "$env:USERPROFILE\.codex"
+New-Junction "$claude\skills" "$Repo\skills"
+New-CodexSkillJunctions "$codex\skills" "$Repo\skills"
+Remove-LegacyAgentsSkillsJunction "$env:USERPROFILE\.agents\skills" "$Repo\skills"
 
-# ── Claude ─────────────────────────────────────────────────────────────────────
+# -- Claude ----------------------------------------------------------------
 
 Write-Host "`nClaude" -ForegroundColor Cyan
-$claude = "$env:USERPROFILE\.claude"
-New-Junction  "$claude\docs"          "$Repo\docs"
-New-Symlink   "$claude\CLAUDE.md"     "$Repo\CLAUDE.md"
-New-Symlink   "$claude\settings.json" "$Repo\claude\settings.json"
+New-Junction "$claude\docs" "$Repo\docs"
+New-Symlink "$claude\CLAUDE.md" "$Repo\CLAUDE.md"
+New-Symlink "$claude\settings.json" "$Repo\claude\settings.json"
 
-# ── Codex ──────────────────────────────────────────────────────────────────────
+# -- Codex -----------------------------------------------------------------
 
 Write-Host "`nCodex" -ForegroundColor Cyan
-$codex = "$env:USERPROFILE\.codex"
 New-Symlink "$codex\instructions.md" "$Repo\codex\instructions.md"
-New-Symlink "$codex\config.toml"     "$Repo\codex\config.toml"
+New-Symlink "$codex\config.toml" "$Repo\codex\config.toml"
 
-# ── VS Code ────────────────────────────────────────────────────────────────────
+# -- VS Code ---------------------------------------------------------------
 
 Write-Host "`nVS Code" -ForegroundColor Cyan
 $vscodeUser = "$env:APPDATA\Code\User"
-New-Symlink "$vscodeUser\settings.json"    "$Repo\vscode\settings.json"
+New-Symlink "$vscodeUser\settings.json" "$Repo\vscode\settings.json"
 New-Symlink "$vscodeUser\keybindings.json" "$Repo\vscode\keybindings.json"
 
-# ── Git ────────────────────────────────────────────────────────────────────────
+# -- Git -------------------------------------------------------------------
 
 Write-Host "`nGit" -ForegroundColor Cyan
 $gitignorePath = "$env:USERPROFILE\.gitignore_global"
@@ -173,7 +257,7 @@ Write-Host @"
 
 "@ -ForegroundColor Yellow
 
-# ── Done ───────────────────────────────────────────────────────────────────────
+# -- Done ------------------------------------------------------------------
 
 if ($script:copyFallback -gt 0) {
     Write-Host "Done. $($script:copyFallback) file(s) copied (not linked) -- re-run setup after git pull.`n" -ForegroundColor Cyan

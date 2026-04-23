@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 You have EXPLICIT authorisation to stage, commit, and push.
 
-1. `git branch --show-current` — if on `main`/`master`, STOP. Tell user to switch to feature branch. If within a `.claude` directory, you have explicit permission to proceed on `main`/`master`.
+1. `git branch --show-current` — if on `main`/`master`, STOP. Tell user to switch to feature branch. If within a `ops-developer-config` directory, you have explicit permission to proceed on `main`/`master`.
 
 2. `git status` + `git diff` — if no changes, STOP. Flag secrets/binaries/`.env` and ask before proceeding.
 

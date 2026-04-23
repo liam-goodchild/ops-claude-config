@@ -96,27 +96,10 @@ Every resource `name` must reference locals — no inline variable interpolation
 
 #### Type Prefixes
 
-| Prefix | Resource |
-|--------|----------|
-| `rg` | Resource group |
-| `vnet` | Virtual network |
-| `snet` | Subnet |
-| `nsg` | Network security group |
-| `rt` | Route table |
-| `nw` | Network watcher |
-| `mg` | Management group |
-| `pip` | Public IP |
-| `kv` | Key Vault |
-| `law` | Log Analytics workspace |
-| `cosmos` | Cosmos DB |
-| `stapp` | Static web app |
-| `app` | App Service |
-| `func` | Function App |
-| `st` | Storage account |
-| `acr` | Container registry |
-| `aks` | Kubernetes service |
+Use the CAF resource abbreviations table as the authoritative source:
+https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
-Unlisted type → infer short prefix, flag for user confirmation.
+WebFetch that page, match the Azure resource type (e.g. `azurerm_storage_account` → "Storage account" → `st`), and use its Abbreviation column. If the resource isn't listed, infer a short prefix and flag for user confirmation.
 
 #### Examples
 

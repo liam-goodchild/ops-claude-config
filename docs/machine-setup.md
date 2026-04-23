@@ -2,17 +2,14 @@
 
 ## Overview
 
-Run `scripts/setup.ps1` once on each new Windows machine to create all
-junctions and symlinks. On Linux/macOS, use the manual commands in the
-per-tool docs.
+Run `scripts/setup.ps1` once on each new Windows machine to create all junctions and symlinks. On Linux/macOS, use the manual commands in the per-tool docs.
 
 ## Prerequisites
 
-- Windows: Administrator shell **or** Developer Mode enabled (Settings →
-  For Developers → Developer Mode)
+- Windows: Administrator shell **or** Developer Mode enabled (Settings -> For Developers -> Developer Mode)
 - Git for Windows installed at `C:\Program Files\Git\`
-- VS Code installed (so `%APPDATA%\Code\User\` exists)
-- Codex CLI installed (creates `~/.codex/` on first run — run it once first)
+- VS Code installed so `%APPDATA%\Code\User\` exists
+- Codex CLI installed; run it once first so `~/.codex/` exists
 
 ## Quick Start (Windows)
 
@@ -20,22 +17,22 @@ per-tool docs.
 # 1. Clone the repo
 git clone https://github.com/liam-goodchild/ops-developer-config.git "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 
-# 2. Run setup script (as Administrator)
+# 2. Run setup script
 cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 .\scripts\setup.ps1
 
-# 3. Add the git include manually (see docs/git-setup.md)
+# 3. Add the git include manually; see docs/git-setup.md
 ```
 
-The script is idempotent — it skips links that already exist, so it's safe to
-re-run after pulling updates.
+The script is idempotent. It skips links that already exist and is safe to re-run after pulling updates.
 
 ## What the Script Creates
 
 | Link type | From (tool location)                       | To (repo)                   |
 | --------- | ------------------------------------------ | --------------------------- |
 | Junction  | `~\.claude\skills`                         | `skills\`                   |
-| Junction  | `~\.agents\skills`                         | `skills\`                   |
+| Junction  | `~\.codex\skills\<skill-name>`             | `skills\<skill-name>`       |
+| Cleanup   | `~\.agents\skills`                         | Removed only when it is the legacy junction to `skills\` |
 | Junction  | `~\.claude\docs`                           | `docs\`                     |
 | Symlink   | `~\.claude\CLAUDE.md`                      | `CLAUDE.md`                 |
 | Symlink   | `~\.claude\settings.json`                  | `claude\settings.json`      |
@@ -53,9 +50,16 @@ cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 git pull
 ```
 
-Because the tool config locations point into the repo via junctions/symlinks,
-changes are live immediately after `git pull` — no re-running the setup script
-needed.
+Most changes are live immediately because the tool locations point into the repo through junctions or symlinks.
+
+Re-run setup after pulling when either condition applies:
+
+- Setup used file-copy fallback because symlinks were unavailable.
+- A new top-level skill directory was added under `skills/`; Codex needs a new per-skill junction under `~/.codex/skills`.
+
+```powershell
+.\scripts\setup.ps1
+```
 
 ## Per-Tool Docs
 

@@ -1,7 +1,7 @@
 # Exclude everything by default
 *
 
-# Skills (shared: Claude + Codex)
+# Skills (repo source of truth for Claude and Codex)
 !skills/
 !skills/**
 

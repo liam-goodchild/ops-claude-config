@@ -12,7 +12,7 @@ Tracked in version control (enforced by `.gitignore`):
 
 | Path | Tool | Purpose |
 |------|------|---------|
-| `skills/` | Claude Code + Codex | Shared slash command definitions |
+| `skills/` | Claude Code + Codex | Shared skill source; linked into `~/.claude/skills` and `~/.codex/skills/<name>` |
 | `claude/settings.json` | Claude Code | Global tool permissions and model config |
 | `CLAUDE.md` | Claude Code | Global Claude system instructions |
 | `git/hooks/` | Git | Global git hooks (pre-commit, etc.) |
@@ -40,7 +40,7 @@ disable-model-invocation: true   # optional — runs without a model call (pure 
 ---
 ```
 
-The body is the prompt given to Claude when the skill is invoked via `/<name>`. Skills may reference CLI tools (`gh`, `az`, `git`) and are expected to be self-contained instructions.
+The body is the instruction prompt used by Claude or Codex when the skill is invoked. Skills may reference CLI tools (`gh`, `az`, `git`) and are expected to be self-contained instructions.
 
 ### Available Skills
 
@@ -111,7 +111,9 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 ### Adding a new skill
 
-Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push. The skill is immediately available on any device after a `git pull`.
+Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push.
+
+Existing skill edits are immediately available on linked machines after a `git pull`. When adding a new top-level skill folder, re-run `.\scripts\setup.ps1` so Codex gets a new per-skill junction under `~/.codex/skills/<name>`. Claude uses a whole-directory `~/.claude/skills` junction and sees new folders immediately.
 
 ### Setting up a new device
 
@@ -124,6 +126,8 @@ cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 ```
 
 The script creates junctions for directories and file symlinks where possible.
+Codex skills are linked under `~/.codex/skills`; the legacy `~/.agents/skills`
+path is cleaned up only when it is the old junction to this repo.
 On domain-joined machines where Group Policy blocks symlink creation, it falls
 back to file copies and prints a reminder — run `.\scripts\setup.ps1` again
 after each `git pull` to refresh the copies. An Administrator shell bypasses

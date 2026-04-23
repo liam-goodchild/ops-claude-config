@@ -8,8 +8,9 @@ if command -v terraform &>/dev/null; then
 	if [ -n "$staged_tf" ]; then
 		terraform fmt -recursive . &>/dev/null || true
 		while IFS= read -r f; do
+			[ -f "$f" ] || continue
 			git add "$f"
-		done < <(git diff --name-only -- '*.tf' '*.tfvars' 2>/dev/null || true)
+		done <<< "$staged_tf"
 	fi
 fi
 

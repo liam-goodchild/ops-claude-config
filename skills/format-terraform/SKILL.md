@@ -12,7 +12,12 @@ Terraform linter. Hard requirements — every deviation is a finding. Scan all `
 - All `.tf` files under `infra/`. Flag any `.tf` outside `infra/`.
 - All `.tfvars` under `infra/vars/`.
 - Required: `infra/vars/globals.tfvars` + one per environment (e.g. `dev.tfvars`, `prd.tfvars`).
-- `globals.tfvars` = shared values (workload, location). Environment files = values that differ per env (SKUs, counts, flags).
+- `globals.tfvars` = shared values that genuinely vary between deployments. Environment files = values that differ per env (SKUs, counts, flags).
+- Do not require these baseline naming/location values in any `.tfvars`; they may be hardcoded as variable defaults instead:
+  - `location = "uksouth"`
+  - `location_short = "uks"`
+  - `workload = "PLACEHOLDER"`
+  - `instance = "01"`
 
 ### 2. Block-Type Files
 
@@ -34,6 +39,7 @@ Group resources by **functional purpose**, not resource type. File names: lowerc
 Examples: `networking.tf` (VNet, subnets, NSGs, route tables), `dns.tf` (zones, records), `key-vault.tf` (KV + diagnostics).
 
 - **Resource groups** go in their own file: `infra/resource-groups.tf`. Sole exception to "group by purpose".
+- **RBAC** goes in its own file: `infra/rbac.tf`. Role assignments, role definitions, and related RBAC resources must not be mixed into functional resource files.
 - No one-file-per-type (over-splitting). No catch-all dump file (under-splitting).
 - Test: "would a reader expect these together?" If yes, same file.
 
@@ -68,7 +74,7 @@ azurerm = {
 }
 ```
 
-Lock file (`terraform.lock.hcl`) must be committed.
+Lock file (`terraform.lock.hcl`) must not be committed. Flag any Terraform lock file present in the repo and recommend removing it from version control.
 
 ### 7. Required Locals
 
@@ -147,6 +153,26 @@ Use `for_each` for multiples. `count` only for conditionals (`count = var.enable
 Every `variable` without `default` must receive a value from: `.tfvars` files, pipeline `-var` flags, or `TF_VAR_` env vars. Flag unsupplied variables — they cause plan-time errors in CI.
 
 Do **not** flag variables with `default` (even `default = null`).
+
+These variables should normally have hardcoded defaults and do not need `.tfvars` values:
+
+```hcl
+variable "location" {
+  default = "uksouth"
+}
+
+variable "location_short" {
+  default = "uks"
+}
+
+variable "workload" {
+  default = "PLACEHOLDER"
+}
+
+variable "instance" {
+  default = "01"
+}
+```
 
 ### 12. tfvars Area Comment Blocks
 

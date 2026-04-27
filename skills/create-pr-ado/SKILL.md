@@ -1,7 +1,6 @@
 ---
 name: create-pr-ado
 description: Create an Azure DevOps pull request for the current branch
-disable-model-invocation: true
 ---
 
 1. `git branch --show-current` + `az repos show --query defaultBranch -o tsv | sed 's|refs/heads/||'`. If on default branch, STOP.

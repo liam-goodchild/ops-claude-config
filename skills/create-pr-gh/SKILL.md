@@ -1,7 +1,6 @@
 ---
 name: create-pr-gh
 description: Create a GitHub pull request for the current branch
-disable-model-invocation: true
 ---
 
 1. `git branch --show-current` + `gh api repos/{owner}/{repo} --jq .default_branch`. If on default branch, STOP.

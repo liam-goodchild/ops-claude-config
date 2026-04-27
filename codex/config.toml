@@ -2,8 +2,8 @@
 # Symlinked from ~/.codex/config.toml
 # Docs: https://developers.openai.com/codex/config-reference
 
-model = "gpt-5.4"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.5"
+model_reasoning_effort = "medium"
 model_instructions_file = "~/.codex/instructions.md"
 
 # Permissions — mirrors Claude Code's broad allow list
@@ -12,3 +12,24 @@ sandbox_mode = "danger-full-access"
 
 [windows]
 sandbox = "unelevated"
+
+[projects.'c:\local files\repositories\sky haven\.needs formatting\solution-cvengine-portfolio']
+trust_level = "trusted"
+
+[projects.'c:\local files\repositories\sky haven\solution-braveart-gallery']
+trust_level = "trusted"
+
+[projects.'c:\local files\repositories\sky haven\infra-engineering-template']
+trust_level = "trusted"
+
+[projects.'c:\local files\repositories\sky haven\.needs formatting\solution-certwatch-web']
+trust_level = "trusted"
+
+[projects.'c:\local files\repositories\sky haven\solution-cvengine-portfolio']
+trust_level = "trusted"
+
+[projects.'c:\users\liamg\documents\second brain']
+trust_level = "trusted"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4

@@ -35,3 +35,6 @@
 
 # GitHub
 !.github/
+
+# Microsoft Foundry Skill
+skills/microsoft-foundry/**

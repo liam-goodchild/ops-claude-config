@@ -24,6 +24,8 @@ Show the user the full issue title and body for review before creating. Wait for
 
 Use the `gh` CLI. On Windows the binary is at `/c/Program Files/GitHub CLI/gh.exe`.
 
+Body follows the feature request template from `liam-goodchild/.github` at `.github/ISSUE_TEMPLATE/feature_request.md`.
+
 ```bash
 "/c/Program Files/GitHub CLI/gh.exe" issue create \
   --repo "<owner>/<repo>" \

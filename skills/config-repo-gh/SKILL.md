@@ -110,7 +110,25 @@ gh api repos/{owner}/{repo} --method PATCH --field name={confirmed-new-name}
 
 Run the `/generate-readme` skill. Only proceed once user confirms code is in working state.
 
-## Step 6 — Link to Sky Haven Project Board
+## Step 6 — Labels
+
+Delete all default GitHub labels and create the single standard label. Repos use the project board's **Type** field (Feature/Bug) instead of labels.
+
+```bash
+# Delete all existing labels
+"/c/Program Files/GitHub CLI/gh.exe" label list --repo {owner}/{repo} --json name -q '.[].name' | \
+  while IFS= read -r label; do
+    "/c/Program Files/GitHub CLI/gh.exe" label delete "$label" --repo {owner}/{repo} --yes
+  done
+
+# Create the single standard label
+"/c/Program Files/GitHub CLI/gh.exe" label create "use-type-field-instead" \
+  --repo {owner}/{repo} \
+  --color "EDEDED" \
+  --description "Use the Type field on the project board instead"
+```
+
+## Step 7 — Link to Sky Haven Project Board
 
 Link repo to the Sky Haven Project Board using GraphQL. Requires `read:project` scope (`gh auth refresh -s read:project` if missing).
 

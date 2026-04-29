@@ -30,7 +30,7 @@ Body follows the feature request template from `liam-goodchild/.github` at `.git
 "/c/Program Files/GitHub CLI/gh.exe" issue create \
   --repo "<owner>/<repo>" \
   --title "[FEATURE] - <title>" \
-  --label "feature" \
+  --label "use-type-field-instead" \
   --assignee "liam-goodchild" \
   --body "$(cat <<'EOF'
 **Is your feature request related to a problem? Please describe.**
@@ -42,6 +42,30 @@ EOF
 )"
 ```
 
-## Step 4 — Report back
+## Step 4 — Set Type field on project board
+
+After the issue is created, set the **Type** field to **Feature** on the Sky Haven Project Board. Find the item by issue node ID and update the single-select field `PVTSSF_lAHOB9ID-s4BU_KBzhRbk2o` to option ID `c156bb04` (Feature).
+
+```bash
+ISSUE_ID=$("/c/Program Files/GitHub CLI/gh.exe" api repos/<owner>/<repo>/issues/<number> --jq '.node_id')
+
+"/c/Program Files/GitHub CLI/gh.exe" api graphql -f query='
+  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+    updateProjectV2ItemFieldValue(input: {
+      projectId: $projectId
+      itemId: $itemId
+      fieldId: $fieldId
+      value: { singleSelectOptionId: $optionId }
+    }) { projectV2Item { id } }
+  }
+' -f projectId="PVT_kwHOB9ID-s4BU_KB" \
+  -f itemId="$ISSUE_ID" \
+  -f fieldId="PVTSSF_lAHOB9ID-s4BU_KBzhRbk2o" \
+  -f optionId="c156bb04"
+```
+
+Note: the issue must already be linked to the project board (added as an item) for this to work. If not, add it first via `addProjectV2ItemById`.
+
+## Step 5 — Report back
 
 Print the URL of the created issue.

@@ -22,7 +22,8 @@ Tracked in version control (enforced by `.gitignore`):
 | `vscode/keybindings.json` | VS Code | Custom keyboard shortcuts |
 | `git/config.shared` | Git | Shared aliases and core settings (via `[include]`) |
 | `git/gitignore_global` | Git | Global gitignore patterns |
-| `scripts/setup.ps1` | All | One-shot link creation for a new Windows machine |
+| `scripts/Install-DeveloperConfig.ps1` | All | One-shot link creation for a new Windows machine; can install a per-user logon task for itself |
+| `scripts/Update-GitRepositories.ps1` | Git | Pulls all repositories under a configurable root; can install a per-user logon task for itself |
 | `docs/` | — | Per-tool setup documentation |
 
 Everything else in each tool's config directory (sessions, history, cache,
@@ -113,28 +114,51 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 Create `skills/<name>/SKILL.md` with the frontmatter and prompt body, then commit and push.
 
-Existing skill edits are immediately available on linked machines after a `git pull`. When adding a new top-level skill folder, re-run `.\scripts\setup.ps1` so Codex gets a new per-skill junction under `~/.codex/skills/<name>`. Claude uses a whole-directory `~/.claude/skills` junction and sees new folders immediately.
+Existing skill edits are immediately available on linked machines after a `git pull`. When adding a new top-level skill folder, re-run `.\scripts\Install-DeveloperConfig.ps1` so Codex gets a new per-skill junction under `~/.codex/skills/<name>`. Claude uses a whole-directory `~/.claude/skills` junction and sees new folders immediately.
 
 ### Setting up a new device
 
-Clone the repo and run the setup script (Windows):
+Clone the repo and run the install script (Windows):
 
 ```powershell
 git clone https://github.com/liam-goodchild/ops-developer-config.git "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
-.\scripts\setup.ps1
+.\scripts\Install-DeveloperConfig.ps1
 ```
 
 The script creates junctions for directories and file symlinks where possible.
 Codex skills are linked under `~/.codex/skills`; the legacy `~/.agents/skills`
 path is cleaned up only when it is the old junction to this repo.
 On domain-joined machines where Group Policy blocks symlink creation, it falls
-back to file copies and prints a reminder — run `.\scripts\setup.ps1` again
+back to file copies and prints a reminder — run `.\scripts\Install-DeveloperConfig.ps1` again
 after each `git pull` to refresh the copies. An Administrator shell bypasses
 this restriction and produces true symlinks.
 
 See `docs/machine-setup.md` for full prerequisites and the manual equivalent
 on Linux/macOS.
+
+### Installing user logon tasks
+
+Both PowerShell scripts can idempotently create or update a per-user scheduled
+task that runs the same script at user logon. These tasks use `RunLevel Limited`
+and do not require local administrator privileges.
+
+Install the developer config refresh task:
+
+```powershell
+.\scripts\Install-DeveloperConfig.ps1 -InstallScheduledTask
+```
+
+Install the repository update task:
+
+```powershell
+.\scripts\Update-GitRepositories.ps1 `
+  -InstallScheduledTask `
+  -RepositoriesRoot "C:\Local Files\Repositories"
+```
+
+If the repositories root differs between machines, pass the machine-specific
+path when installing the `Update-GitRepositories.ps1` task.
 
 ### Pulling updates on an existing device
 
@@ -143,12 +167,12 @@ cd "C:\Local Files\Repositories\Sky Haven\ops-developer-config"
 git pull
 ```
 
-If setup created **symlinks/junctions** (admin or Developer Mode was available),
-the pull is immediately live. If setup fell back to **file copies**, re-run the
-setup script after pulling to refresh them:
+If the install script created **symlinks/junctions** (admin or Developer Mode was available),
+the pull is immediately live. If it fell back to **file copies**, re-run the
+install script after pulling to refresh them:
 
 ```powershell
-.\scripts\setup.ps1
+.\scripts\Install-DeveloperConfig.ps1
 ```
 
 ### gh CLI path (Windows)

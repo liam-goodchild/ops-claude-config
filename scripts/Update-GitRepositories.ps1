@@ -115,6 +115,25 @@ function ConvertTo-TaskArgument {
     return '"' + ($Value -replace '"', '\"') + '"'
 }
 
+function Get-PowerShellExecutablePath {
+    $currentPowerShell = Join-Path -Path $PSHOME -ChildPath "powershell.exe"
+    if (Test-Path -LiteralPath $currentPowerShell -PathType Leaf) {
+        return $currentPowerShell
+    }
+
+    $windowsPowerShell = Join-Path -Path $env:WINDIR -ChildPath "System32\WindowsPowerShell\v1.0\powershell.exe"
+    if (Test-Path -LiteralPath $windowsPowerShell -PathType Leaf) {
+        return $windowsPowerShell
+    }
+
+    $pathPowerShell = Get-Command powershell.exe -ErrorAction SilentlyContinue
+    if ($pathPowerShell) {
+        return $pathPowerShell.Source
+    }
+
+    throw "Unable to find powershell.exe for scheduled task action."
+}
+
 function Get-IncludeList {
     param (
         [Parameter(Mandatory = $true)]
@@ -184,7 +203,7 @@ function Register-UserLogonTask {
         [bool]$UsePlainGitPull
     )
 
-    $powerShellPath = Join-Path -Path $PSHOME -ChildPath "powershell.exe"
+    $powerShellPath = Get-PowerShellExecutablePath
     $arguments = @(
         "-NoProfile"
         "-ExecutionPolicy"
@@ -253,7 +272,7 @@ if ([string]::IsNullOrWhiteSpace($ConfigPath)) {
 
 $includeList = $null
 if (-not [string]::IsNullOrWhiteSpace($ConfigPath)) {
-    $includeList = Get-IncludeList -Path $ConfigPath
+    $includeList = @(Get-IncludeList -Path $ConfigPath)
     if ($null -eq $includeList) {
         Write-Warning "Config file not found: $ConfigPath"
     } elseif ($includeList.Count -eq 0) {

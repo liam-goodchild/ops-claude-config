@@ -278,6 +278,25 @@ function ConvertTo-TaskArgument {
     return '"' + ($Value -replace '"', '\"') + '"'
 }
 
+function Get-PowerShellExecutablePath {
+    $currentPowerShell = Join-Path -Path $PSHOME -ChildPath "powershell.exe"
+    if (Test-Path -LiteralPath $currentPowerShell -PathType Leaf) {
+        return $currentPowerShell
+    }
+
+    $windowsPowerShell = Join-Path -Path $env:WINDIR -ChildPath "System32\WindowsPowerShell\v1.0\powershell.exe"
+    if (Test-Path -LiteralPath $windowsPowerShell -PathType Leaf) {
+        return $windowsPowerShell
+    }
+
+    $pathPowerShell = Get-Command powershell.exe -ErrorAction SilentlyContinue
+    if ($pathPowerShell) {
+        return $pathPowerShell.Source
+    }
+
+    throw "Unable to find powershell.exe for scheduled task action."
+}
+
 function Register-UserLogonTask {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
@@ -291,7 +310,7 @@ function Register-UserLogonTask {
         [string]$Name
     )
 
-    $powerShellPath = Join-Path -Path $PSHOME -ChildPath "powershell.exe"
+    $powerShellPath = Get-PowerShellExecutablePath
     $arguments = @(
         "-NoProfile"
         "-ExecutionPolicy"

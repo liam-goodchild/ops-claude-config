@@ -81,15 +81,34 @@ def load_plan(path: str) -> dict[str, Any]:
 def require_approved(plan: dict[str, Any]):
     if plan.get('approved') is not True: raise SkillError('Plan must include approved=true after explicit user approval')
 
-TEMPLATES={
- 'feature': {'prefix':'[FEATURE]','body':'**What does this PR do?**\n{description}\n\n**Related issue**\nCloses #\n\n**Testing done**\n{testing}\n\n**Checklist**\n- [ ] Code follows project conventions\n- [ ] No secrets or credentials included'},
- 'bug_fix': {'prefix':'[PATCH]','body':'**What is the bug?**\n{description}\n\n**Root cause**\n{root_cause}\n\n**Related issue**\nFixes #\n\n**Testing done**\n{testing}\n\n**Checklist**\n- [ ] Root cause identified and addressed\n- [ ] No secrets or credentials included'},
- 'maintenance': {'prefix':'[MINOR]','body':'**What does this PR change?**\n{description}\n\n**Why?**\n{reason}\n\n**Related issue**\nCloses # (if applicable)\n\n**Checklist**\n- [ ] No functional behaviour changed\n- [ ] No secrets or credentials included'}
-}
+def parse_template(path: Path) -> dict[str,Any]:
+    text=path.read_text(encoding='utf-8')
+    meta: dict[str,str]={}; body=text
+    if text.startswith('---\n'):
+        _, fm, body = text.split('---\n', 2)
+        for line in fm.splitlines():
+            if ':' in line:
+                k,v=line.split(':',1); meta[k.strip()]=v.strip().strip('\"')
+    return {'path':str(path),'frontmatter':meta,'body':body.strip()}
+
+def find_shared_template(start: Path, *parts: str) -> dict[str,Any]|None:
+    for parent in [start, *start.parents]:
+        candidate=parent.joinpath('.github','.github',*parts)
+        if candidate.exists(): return parse_template(candidate)
+        candidate=parent.parent.joinpath('.github','.github',*parts) if parent.parent else candidate
+        if candidate.exists(): return parse_template(candidate)
+    return None
+
+def pull_request_template(start: Path) -> dict[str,Any]|None:
+    return find_shared_template(start,'PULL_REQUEST_TEMPLATE','pull-request.md')
+
 def branch_kind(branch: str) -> dict[str,str]|None:
-    table=[(('feature/',),'feature','[FEATURE]'),(('major/','breaking/'),'feature','[MAJOR]'),(('fix/','hotfix/','bug/'),'bug_fix','[PATCH]'),(('minor/','patch/','chore/','docs/'),'maintenance','[MINOR]')]
-    for prefixes,template,title_prefix in table:
-        if branch.startswith(prefixes): return {'template':template,'title_prefix':title_prefix}
+    table=[(('feature/',),'feature'),(('major/','breaking/'),'feature'),(('fix/','hotfix/','bug/'),'bug_fix'),(('minor/','patch/','chore/','docs/'),'maintenance')]
+    for prefixes,template in table:
+        for prefix in prefixes:
+            if branch.startswith(prefix):
+                title_prefix=f"[{prefix.rstrip('/').upper()}]"
+                return {'template':template,'title_prefix':title_prefix}
     return None
 
 def diff_stat(cwd: Path, base: str) -> dict[str,Any]:
@@ -108,10 +127,12 @@ def inspect(t: str) -> dict[str,Any]:
             try: existing=json.loads(pr.stdout) if pr.returncode==0 and pr.stdout else []
             except json.JSONDecodeError: existing=[]
     kind=branch_kind(branch or '')
-    return {'target':str(p),'repository':repo,'current_branch':branch,'default_branch':default,'on_default_branch':bool(default and branch==default),'existing_pull_requests':existing,'branch_mapping':kind,'diff_stat':diff_stat(p,default) if default else None,'risk_flags':[k for k,b in {'gh_not_found':not gh,'repository_not_inferred':not repo,'default_branch_unknown':not default,'on_default_branch':bool(default and branch==default),'branch_prefix_unclear':not kind}.items() if b], 'templates': TEMPLATES, 'plan_shape': {'title':'Short title without prefix','body':'Markdown body','approved':True}}
+    return {'target':str(p),'repository':repo,'current_branch':branch,'default_branch':default,'on_default_branch':bool(default and branch==default),'existing_pull_requests':existing,'branch_mapping':kind,'diff_stat':diff_stat(p,default) if default else None,'risk_flags':[k for k,b in {'gh_not_found':not gh,'repository_not_inferred':not repo,'default_branch_unknown':not default,'on_default_branch':bool(default and branch==default),'branch_prefix_unclear':not kind,'pull_request_template_not_found':not pull_request_template(p)}.items() if b], 'pull_request_template':pull_request_template(p), 'plan_shape': {'title':'Short title with branch_mapping.title_prefix','body':'Markdown body based on pull_request_template.body','approved':True}}
 
 def apply(t, plan_path, dry):
-    p=target_dir(t); plan=load_plan(plan_path); require_approved(plan); gh=exe('gh'); repo=plan.get('repository') or parse_github(remote_origin(p)); base=plan.get('base')
+    p=target_dir(t); template=pull_request_template(p);
+    if not template: raise SkillError('Shared pull request template not found: .github/.github/PULL_REQUEST_TEMPLATE/pull-request.md')
+    plan=load_plan(plan_path); require_approved(plan); gh=exe('gh'); repo=plan.get('repository') or parse_github(remote_origin(p)); base=plan.get('base')
     if not gh or not repo: raise SkillError('gh and repository are required')
     title=plan.get('title'); body=plan.get('body')
     if not isinstance(title,str) or not isinstance(body,str): raise SkillError('title and body are required')

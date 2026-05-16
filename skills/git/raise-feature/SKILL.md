@@ -10,7 +10,7 @@ Raise a GitHub feature request issue on a repository. Use the bundled Python hel
 Run the helper from the current working directory or target repository directory:
 
 ```powershell
-python "C:\Local Files\Repositories\Sky Haven\ops-developer-config\skills\git\raise-feature\scripts\raise_feature_helper.py" inspect --target "." --json
+python "C:\Local Files\Repositories\Sky Haven\ops-developer-config\skills\git\raise-feature\scripts\raise-feature-helper.py" inspect --target "." --json
 ```
 
 Inspect these JSON fields:
@@ -64,13 +64,13 @@ Optional plan fields are `label` and `assignee`; defaults are `use-type-field-in
 Dry-run first when practical:
 
 ```powershell
-python "C:\Local Files\Repositories\Sky Haven\ops-developer-config\skills\git\raise-feature\scripts\raise_feature_helper.py" apply --target "." --plan "$env:TEMP\feature-plan.json" --dry-run
+python "C:\Local Files\Repositories\Sky Haven\ops-developer-config\skills\git\raise-feature\scripts\raise-feature-helper.py" apply --target "." --plan "$env:TEMP\feature-plan.json" --dry-run
 ```
 
 After approval and validation, create the issue:
 
 ```powershell
-python "C:\Local Files\Repositories\Sky Haven\ops-developer-config\skills\git\raise-feature\scripts\raise_feature_helper.py" apply --target "." --plan "$env:TEMP\feature-plan.json"
+python "C:\Local Files\Repositories\Sky Haven\ops-developer-config\skills\git\raise-feature\scripts\raise-feature-helper.py" apply --target "." --plan "$env:TEMP\feature-plan.json"
 ```
 
 The helper uses `gh issue create`, adds the created issue to the Sky Haven Project Board, and sets the **Type** field to **Feature** using option ID `c156bb04`.

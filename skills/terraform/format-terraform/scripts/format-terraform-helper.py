@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Any
 
 
-AREA_HEADER_RE = re.compile(r"^#{41} [A-Z0-9][A-Z0-9 /&()_.-]* #{41}$")
+AREA_BORDER_RE = re.compile(r"^#{41}$")
+AREA_TITLE_RE = re.compile(r"^# [A-Z0-9][A-Z0-9 /&()_.-]*$")
 ASSIGNMENT_RE = re.compile(r"(?m)^\s*([A-Za-z_][A-Za-z0-9_-]*)\s*=")
 TOP_LEVEL_BLOCK_RE = re.compile(
     r'(?m)^(?P<indent>[ \t]*)(?P<kind>terraform|provider|variable|output|locals|data|resource|module)\b(?P<labels>[^{\n]*)\{'
@@ -595,7 +596,7 @@ def minor_pessimistic_constraint(value: str) -> bool:
 
 
 def terraform_version_constraint_ok(value: str) -> bool:
-    return "~> 1.9.0" in value
+    return "1.15.3" in value
 
 
 def module_source_requires_version(source_value: str | None) -> bool:
@@ -621,14 +622,15 @@ def is_taggable_azurerm_resource(resource_type: str) -> bool:
 
 
 def code_without_declarations(texts: dict[str, str]) -> str:
-    stripped_parts: list[str] = []
-    for rel, text in texts.items():
-        remaining = text
-        for block in reversed(parse_blocks(text, rel)):
-            if block.kind in {"variable", "output", "locals", "data"}:
-                remaining = remaining[: block.start] + "\n" * remaining[block.start : block.end].count("\n") + remaining[block.end :]
-        stripped_parts.append(remaining)
-    return "\n".join(stripped_parts)
+    # Dead-code checks should consider references from any Terraform expression,
+    # not only resource/module bodies. Values are routinely composed through
+    # locals, outputs, data-source arguments, validation blocks, and nested
+    # provider-specific expressions. Do not remove declaration blocks here:
+    # declaration labels such as `variable "name"` or `data "type" "name"` do
+    # not match the fully-qualified references that checks look for (`var.name`,
+    # `local.name`, `data.type.name`), so keeping the full source avoids false
+    # positives without turning declarations into usages.
+    return "\n".join(texts.values())
 
 
 def check_paths(root: Path, tf_files: list[Path], tfvars_files: list[Path], findings: list[dict[str, Any]]) -> None:
@@ -706,7 +708,7 @@ def check_versions(all_blocks: list[Block], findings: list[dict[str, Any]]) -> N
                 block.file,
                 block.line,
                 "Terraform block does not set required_version.",
-                'Add required_version = "~> 1.9.0" to the terraform block.',
+                'Add required_version = "1.15.3" to the terraform block.',
                 source="hashicorp+sky-haven",
             )
         elif not terraform_version_constraint_ok(required_version):
@@ -715,8 +717,8 @@ def check_versions(all_blocks: list[Block], findings: list[dict[str, Any]]) -> N
                 "versions.terraform-required-version",
                 block.file,
                 block.line,
-                f"Terraform required_version is not the house baseline '~> 1.9.0': {required_version}",
-                'Set required_version = "~> 1.9.0", or update the skill baseline deliberately.',
+                f"Terraform required_version is not the house baseline '1.15.3': {required_version}",
+                'Set required_version = "1.15.3", or update the skill baseline deliberately.',
             )
         provider_blocks = re.finditer(r"(?ms)^\s{2,}([A-Za-z0-9_-]+)\s*=\s*{(?P<body>.*?^\s{2,}})", block.text)
         for provider_match in provider_blocks:
@@ -980,6 +982,15 @@ def check_resources(all_blocks: list[Block], findings: list[dict[str, Any]]) -> 
                 )
 
 
+def is_area_header_at(lines: list[str], index: int) -> bool:
+    return (
+        index + 2 < len(lines)
+        and AREA_BORDER_RE.match(lines[index]) is not None
+        and AREA_TITLE_RE.match(lines[index + 1]) is not None
+        and AREA_BORDER_RE.match(lines[index + 2]) is not None
+    )
+
+
 def check_tfvars(root: Path, tfvars_files: list[Path], tfvars_texts: dict[str, str], findings: list[dict[str, Any]]) -> None:
     for file in tfvars_files:
         rel = rel_path(root, file)
@@ -987,7 +998,13 @@ def check_tfvars(root: Path, tfvars_files: list[Path], tfvars_texts: dict[str, s
         if not text.strip():
             continue
         lines = text.splitlines()
-        has_valid_header = any(AREA_HEADER_RE.match(line) for line in lines)
+        header_line_numbers = {
+            line_number
+            for index in range(len(lines))
+            if is_area_header_at(lines, index)
+            for line_number in (index + 1, index + 2, index + 3)
+        }
+        has_valid_header = bool(header_line_numbers)
         if not has_valid_header:
             finding(
                 findings,
@@ -995,14 +1012,15 @@ def check_tfvars(root: Path, tfvars_files: list[Path], tfvars_texts: dict[str, s
                 rel,
                 1,
                 "Missing exact tfvars area comment block header.",
-                "Group assignments under headers matching: 41 hashes, space, uppercase title, space, 41 hashes.",
+                "Group assignments under three-line headers: 41 hashes, '# UPPERCASE TITLE', 41 hashes.",
             )
         seen_header = False
         for idx, line in enumerate(lines, start=1):
             stripped = line.strip()
+            if idx in header_line_numbers:
+                seen_header = True
+                continue
             if not stripped or stripped.startswith("#"):
-                if AREA_HEADER_RE.match(line):
-                    seen_header = True
                 continue
             if "=" in line and not seen_header:
                 finding(
@@ -1011,7 +1029,7 @@ def check_tfvars(root: Path, tfvars_files: list[Path], tfvars_texts: dict[str, s
                     rel,
                     idx,
                     "tfvars assignment appears before the first valid area header.",
-                    "Move the assignment below an exact uppercase area header.",
+                    "Move the assignment below an exact three-line uppercase area header.",
                 )
             assignment = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_-]*)\s*=", line)
             if assignment and SECRET_NAME_RE.search(assignment.group(1)):

@@ -30,13 +30,13 @@ Use the bundled Python helper for deterministic Terraform checks. Use the LLM on
 - Group resources by functional purpose; `resource-groups.tf` and `rbac.tf` are dedicated files.
 - Exactly one blank line between top-level blocks.
 - No unused variables, outputs, data sources, locals, or commented-out blocks.
-- Terraform CLI `~> 1.9.0`; provider versions use minor-level `~>` constraints. Commit `infra/.terraform.lock.hcl`; when missing, generate it with `terraform -chdir=infra init -backend=false -input=false`.
+- Terraform CLI `1.15.3`; provider versions use minor-level `~>` constraints. Commit `infra/.terraform.lock.hcl`; when missing, generate it with `terraform -chdir=infra init -backend=false -input=false`.
 - Required locals: `resource_suffix`, `resource_suffix_flat`, and `tags.managed-by`.
 - Resource names use Microsoft Cloud Adoption Framework abbreviations and locals; storage and ACR use `resource_suffix_flat`.
 - Taggable resources use `tags = local.tags` or `merge(local.tags, ...)`.
 - Prefer `for_each`; `count` only for conditional toggles.
 - Variables without defaults must be supplied by tfvars, pipeline `-var`, or `TF_VAR_`.
-- `.tfvars` assignments must be grouped under exact 41-hash uppercase area headers.
+- `.tfvars` assignments must be grouped under exact three-line area headers: a 41-hash border, `# UPPERCASE TITLE`, and a 41-hash border.
 - Do not commit secrets in `.tfvars`; supply secret values through secure pipeline variables, `TF_VAR_`, Key Vault, or equivalent.
 
 ## HashiCorp-aligned standards to enforce

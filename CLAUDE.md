@@ -10,21 +10,21 @@ connect each tool's expected config location into this repo, so a single
 
 Tracked in version control (enforced by `.gitignore`):
 
-| Path | Tool | Purpose |
-|------|------|---------|
-| `skills/` | Claude Code + Codex | Shared skill source; linked into `~/.claude/skills` and `~/.codex/skills/<name>` |
-| `claude/settings.json` | Claude Code | Global tool permissions and model config |
-| `CLAUDE.md` | Claude Code | Global Claude system instructions |
-| `git/hooks/` | Git | Global git hooks (pre-commit, etc.) |
-| `codex/instructions.md` | Codex CLI | System prompt / custom instructions |
-| `codex/config.toml` | Codex CLI | Model, reasoning effort, options |
-| `vscode/settings.json` | VS Code | Editor and extension settings |
-| `vscode/keybindings.json` | VS Code | Custom keyboard shortcuts |
-| `git/config.shared` | Git | Shared aliases and core settings (via `[include]`) |
-| `git/gitignore_global` | Git | Global gitignore patterns |
-| `scripts/Install-DeveloperConfig.ps1` | All | One-shot link creation for a new Windows machine; can install a per-user logon task for itself |
-| `scripts/Update-GitRepositories.ps1` | Git | Pulls all repositories under a configurable root; can install a per-user logon task for itself |
-| `docs/` | — | Per-tool setup documentation |
+| Path                                  | Tool                | Purpose                                                                                        |
+| ------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
+| `skills/`                             | Claude Code + Codex | Shared skill source; linked into `~/.claude/skills` and `~/.codex/skills/<name>`               |
+| `claude/settings.json`                | Claude Code         | Global tool permissions and model config                                                       |
+| `CLAUDE.md`                           | Claude Code         | Global Claude system instructions                                                              |
+| `git/hooks/`                          | Git                 | Global git hooks (pre-commit, etc.)                                                            |
+| `codex/instructions.md`               | Codex CLI           | System prompt / custom instructions                                                            |
+| `codex/config.toml`                   | Codex CLI           | Model, reasoning effort, options                                                               |
+| `vscode/settings.json`                | VS Code             | Editor and extension settings                                                                  |
+| `vscode/keybindings.json`             | VS Code             | Custom keyboard shortcuts                                                                      |
+| `git/config.shared`                   | Git                 | Shared aliases and core settings (via `[include]`)                                             |
+| `git/gitignore_global`                | Git                 | Global gitignore patterns                                                                      |
+| `scripts/Install-DeveloperConfig.ps1` | All                 | One-shot link creation for a new Windows machine; can install a per-user logon task for itself |
+| `scripts/Update-GitRepositories.ps1`  | Git                 | Pulls all repositories under a configurable root; can install a per-user logon task for itself |
+| `docs/`                               | —                   | Per-tool setup documentation                                                                   |
 
 Everything else in each tool's config directory (sessions, history, cache,
 credentials, etc.) is excluded.
@@ -37,7 +37,7 @@ Each skill lives in `skills/<name>/SKILL.md` and is a markdown file with YAML fr
 ---
 name: skill-name
 description: shown in the skill picker
-disable-model-invocation: true   # optional — runs without a model call (pure bash)
+disable-model-invocation: true # optional — runs without a model call (pure bash)
 ---
 ```
 
@@ -49,63 +49,63 @@ Naming schema: `{verb}-{subject}[-{qualifier}]`
 
 **Review**
 
-| Skill | Purpose |
-|-------|---------|
-| `review-terraform` | Terraform code and CI/CD pipeline (minimalist lens) |
-| `review-gha-pipelines` | GitHub Actions workflow quality, security, reliability |
+| Skill                  | Purpose                                                   |
+| ---------------------- | --------------------------------------------------------- |
+| `review-terraform`     | Terraform code and CI/CD pipeline (minimalist lens)       |
+| `review-gha-pipelines` | GitHub Actions workflow quality, security, reliability    |
 | `review-ado-pipelines` | Azure DevOps YAML pipeline quality, security, reliability |
-| `review-pull-request` | Pull request review (GitHub and ADO) |
-| `review-security` | App security review (OWASP, Azure) and CI security gates |
-| `review-waf` | Azure Well-Architected Framework pillar assessment (RAG) |
-| `review-caf` | Cloud Adoption Framework landing zone alignment |
+| `review-pull-request`  | Pull request review (GitHub and ADO)                      |
+| `review-security`      | App security review (OWASP, Azure) and CI security gates  |
+| `review-waf`           | Azure Well-Architected Framework pillar assessment (RAG)  |
+| `review-caf`           | Cloud Adoption Framework landing zone alignment           |
 
 **Format**
 
-| Skill | Purpose |
-|-------|---------|
-| `format-terraform` | Terraform file structure, naming, tagging, pinning, and formatting standards |
-| `format-ado-pipelines` | Azure DevOps pipeline file structure, layout, and formatting standards |
-| `format-gha-pipelines` | GitHub Actions workflow file structure, layout, and formatting standards |
+| Skill                  | Purpose                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------- |
+| `format-terraform`     | Terraform file structure, naming, tagging, pinning, and formatting standards |
+| `format-ado-pipelines` | Azure DevOps pipeline file structure, layout, and formatting standards       |
+| `format-gha-pipelines` | GitHub Actions workflow file structure, layout, and formatting standards     |
 
 **Generate**
 
-| Skill | Purpose |
-|-------|---------|
-| `generate-diagram` | Mermaid architecture diagrams from IaC/code |
-| `generate-cost-estimate` | Azure cost estimate from IaC |
-| `generate-readme` | Brief project README from code and standards template |
+| Skill                    | Purpose                                               |
+| ------------------------ | ----------------------------------------------------- |
+| `generate-diagram`       | Mermaid architecture diagrams from IaC/code           |
+| `generate-cost-estimate` | Azure cost estimate from IaC                          |
+| `generate-readme`        | Brief project README from code and standards template |
 
 **Create**
 
-| Skill | Purpose |
-|-------|---------|
+| Skill           | Purpose                             |
+| --------------- | ----------------------------------- |
 | `create-pr-ado` | Create an Azure DevOps pull request |
-| `create-pr-gh` | Create a GitHub pull request |
+| `create-pr-gh`  | Create a GitHub pull request        |
 
 **Config**
 
-| Skill | Purpose |
-|-------|---------|
-| `config-repo-ado` | Standard ADO repo configuration |
-| `config-repo-gh` | Standard GitHub repo configuration |
+| Skill             | Purpose                            |
+| ----------------- | ---------------------------------- |
+| `config-repo-ado` | Standard ADO repo configuration    |
+| `config-repo-gh`  | Standard GitHub repo configuration |
 
 **Git**
 
-| Skill | Purpose |
-|-------|---------|
-| `git-cleanup` | Delete merged branches, prune remotes |
+| Skill             | Purpose                                    |
+| ----------------- | ------------------------------------------ |
+| `git-cleanup`     | Delete merged branches, prune remotes      |
 | `git-commit-push` | Stage, commit, and push with safety checks |
 
 **Microsoft Foundry**
 
-| Skill | Purpose |
-|-------|---------|
+| Skill               | Purpose                                                                                                                             |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `microsoft-foundry` | Full Foundry agent lifecycle: deploy, invoke, observe, evaluate, optimize prompts, manage models/quota/RBAC, and provision projects |
 
 **Other**
 
-| Skill | Purpose |
-|-------|---------|
+| Skill   | Purpose                                                |
+| ------- | ------------------------------------------------------ |
 | `learn` | Quiz on recent code changes to reinforce understanding |
 
 ## Common Tasks

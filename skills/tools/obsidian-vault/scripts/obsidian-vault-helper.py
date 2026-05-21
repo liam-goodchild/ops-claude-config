@@ -26,6 +26,12 @@ PRESERVE_WHEN_FORMATTING = [
     "paths",
     "quoted text",
 ]
+TRIAGE_REPORT_NAME = "triage-report.md"
+CONSOLIDATION_REPORT_NAME = "vault-consolidation.md"
+CONSOLIDATION_ACTION_RE = re.compile(
+    r"^\|\s*(VC-\d+)\s*\|\s*(.*?)\s*\|\s*(pending|approve|approved|run|skip|defer|done)\s*\|",
+    flags=re.IGNORECASE | re.MULTILINE,
+)
 
 
 def out(data: dict[str, Any]) -> None:
@@ -102,6 +108,107 @@ def tags_from_file(path: Path) -> list[str]:
     if raw is None:
         return []
     return parse_yaml_list(raw, "tags")
+
+
+def find_report_duplicates(meta: Path, canonical_name: str, legacy_pattern: str) -> list[str]:
+    if not meta.exists():
+        return []
+    candidates = {path for path in meta.glob(legacy_pattern) if path.is_file()}
+    canonical = meta / canonical_name
+    if canonical.exists():
+        candidates.add(canonical)
+    return sorted(str(path) for path in candidates)
+
+
+def parse_consolidation_actions(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {
+            "exists": False,
+            "pending_input_count": 0,
+            "approved_actions": [],
+            "skipped_actions": [],
+            "deferred_actions": [],
+            "completed_actions": [],
+        }
+
+    text = read_text(path)
+    actions: list[dict[str, str]] = []
+    for match in CONSOLIDATION_ACTION_RE.finditer(text):
+        action_id, description, response = match.groups()
+        actions.append(
+            {
+                "id": action_id.strip(),
+                "description": re.sub(r"<br\s*/?>", " ", description.strip(), flags=re.IGNORECASE),
+                "response": response.lower().strip(),
+            }
+        )
+
+    approved = [item for item in actions if item["response"] in {"approve", "approved", "run"}]
+    skipped = [item for item in actions if item["response"] == "skip"]
+    deferred = [item for item in actions if item["response"] == "defer"]
+    completed = [item for item in actions if item["response"] == "done"]
+    pending = [item for item in actions if item["response"] == "pending"]
+
+    return {
+        "exists": True,
+        "path": str(path),
+        "action_table_count": len(actions),
+        "pending_input_count": len(pending),
+        "approved_actions": approved,
+        "skipped_actions": skipped,
+        "deferred_actions": deferred,
+        "completed_actions": completed,
+        "has_approved_actions_to_run": bool(approved),
+        "expected_response_values": ["pending", "approve", "skip", "defer", "done"],
+        "expected_table_header": "| ID | Proposed action | Liam response |",
+    }
+
+
+def previous_consolidation_path(meta: Path) -> Path:
+    canonical = meta / CONSOLIDATION_REPORT_NAME
+    if canonical.exists():
+        return canonical
+
+    legacy = [
+        path
+        for pattern in ["vault-consolidation*.actions.md", "vault-consolidation*.report.md", "vault-consolidation*.md"]
+        for path in meta.glob(pattern)
+        if path.is_file()
+    ]
+    if legacy:
+        return max(legacy, key=lambda item: item.stat().st_mtime)
+
+    return canonical
+
+
+def inspect_previous_reports(meta: Path) -> dict[str, Any]:
+    triage_paths = find_report_duplicates(meta, TRIAGE_REPORT_NAME, "triage-report*.md")
+    consolidation_paths = find_report_duplicates(meta, CONSOLIDATION_REPORT_NAME, "vault-consolidation*.md")
+    consolidation_to_check = previous_consolidation_path(meta)
+
+    return {
+        "single_report_policy": {
+            "triage_report_name": TRIAGE_REPORT_NAME,
+            "consolidation_report_name": CONSOLIDATION_REPORT_NAME,
+            "legacy_dated_reports_should_be_consolidated": True,
+            "separate_actions_file_should_not_be_created": True,
+        },
+        "triage_reports": triage_paths,
+        "triage_report_count": len(triage_paths),
+        "consolidation_reports": consolidation_paths,
+        "consolidation_report_count": len(consolidation_paths),
+        "previous_consolidation": parse_consolidation_actions(consolidation_to_check),
+        "report_policy_issues": [
+            issue
+            for issue, has_issue in {
+                "multiple_triage_reports": len(triage_paths) > 1,
+                "multiple_consolidation_reports": len(consolidation_paths) > 1,
+                "legacy_actions_file_present": any(path.endswith(".actions.md") for path in consolidation_paths),
+            }.items()
+            if has_issue
+        ],
+    }
+
 
 def inspect_frontmatter(root: Path, files: list[Path]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
@@ -202,10 +309,10 @@ def inspect_vault(vault: str | None = None) -> dict[str, Any]:
         "frontmatter_issues": inspect_frontmatter(root, files)[:200],
         "frontmatter_standard": ["created", "modified", "tags", "aliases", "source", "status", "confidence"],
         "report_paths": {
-            "triage": str(meta / "triage-report-YYYY-MM-DD.md"),
-            "consolidation": str(meta / "vault-consolidation-YYYY-MM-DD.report.md"),
-            "actions": str(meta / "vault-consolidation-YYYY-MM-DD.actions.md"),
+            "triage": str(meta / TRIAGE_REPORT_NAME),
+            "consolidation": str(meta / CONSOLIDATION_REPORT_NAME),
         },
+        "previous_reports": inspect_previous_reports(meta),
         "risk_flags": [
             key
             for key, is_risk in {

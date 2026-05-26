@@ -1,6 +1,6 @@
 interface:
   display_name: "Learn Content"
-  short_description: "Turn sources into study notes, quizzes, and Obsidian learning notes."
-  default_prompt: "Use $learn-content to study these URLs or notes, synthesize durable learning material, and optionally save the result as Markdown in my Obsidian vault."
+  short_description: "Turn sources into understanding-first Obsidian learning notes."
+  default_prompt: "Use $learn-content to teach me this URL or file in my own way, then save an understanding-first learning note to my Obsidian vault."
 policy:
   allow_implicit_invocation: true

@@ -4,7 +4,6 @@ import argparse
 import json
 import re
 import sys
-from datetime import date
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -66,8 +65,6 @@ def inspect_file(path_text: str) -> dict[str, Any]:
         ],
         "valid_learning_question_types": [
             "multiple-choice",
-            "short-answer",
-            "rubric",
             "categorisation",
         ],
     }
@@ -145,12 +142,12 @@ def detect_vault(path_text: str) -> dict[str, Any]:
     }
 
 
-def slugify(title: str) -> str:
-    slug = title.strip().lower()
-    slug = re.sub(r"[\\/:*?\"<>|]+", " ", slug)
-    slug = re.sub(r"[^a-z0-9]+", "-", slug)
-    slug = slug.strip("-")
-    return slug[:80] or "learning-note"
+def safe_markdown_filename(title: str) -> str:
+    name = title.strip()
+    name = re.sub(r"[\\/:*?\"<>|]+", " ", name)
+    name = re.sub(r"\s+", " ", name)
+    name = name.strip(" .")
+    return name[:120].strip(" .") or "Learning Note"
 
 
 def suggest_output(vault_text: str, title: str, folder: str | None) -> dict[str, Any]:
@@ -163,7 +160,7 @@ def suggest_output(vault_text: str, title: str, folder: str | None) -> dict[str,
     if not str(output_dir).startswith(str(vault.resolve())):
         raise SkillError("Output folder escapes the vault root")
 
-    file_name = f"{date.today().isoformat()} - {slugify(title)}.md"
+    file_name = f"{safe_markdown_filename(title)}.md"
     output_file = output_dir / file_name
 
     return {
